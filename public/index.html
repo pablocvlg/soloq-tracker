@@ -1,0 +1,557 @@
+Index · HTML
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GG Tracker — EUW</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:      #080b0f;
+  --bg2:     #0d1117;
+  --bg3:     #141b23;
+  --border:  #1c2630;
+  --gold:    #c89b3c;
+  --gold2:   #f0ce71;
+  --blue:    #4a90d9;
+  --red:     #d9534a;
+  --green:   #4ad97a;
+  --text:    #cccbc4;
+  --muted:   #58677a;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Ambient background */
+body::before {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(ellipse 70% 35% at 50% -5%, rgba(74,144,217,.1) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 25% at 85% 90%, rgba(200,155,60,.07) 0%, transparent 55%);
+}
+
+/* Noise grain */
+body::after {
+  content: '';
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  opacity: .025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size: 128px;
+}
+
+.wrapper {
+  position: relative; z-index: 1;
+  max-width: 1280px; margin: 0 auto; padding: 0 28px 100px;
+}
+
+/* ── HEADER ── */
+header {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding: 36px 0 0; margin-bottom: 48px;
+  border-bottom: 1px solid var(--border); padding-bottom: 24px;
+}
+.logo-block { display: flex; flex-direction: column; gap: 4px; }
+.logo-eyebrow {
+  font-family: 'DM Mono', monospace;
+  font-size: .65rem; letter-spacing: 3px; text-transform: uppercase;
+  color: var(--gold); opacity: .8;
+}
+.logo-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 3rem; letter-spacing: 3px; line-height: 1;
+  color: var(--gold2);
+  text-shadow: 0 0 40px rgba(200,155,60,.35);
+}
+.header-meta {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 6px;
+}
+.live-dot {
+  display: flex; align-items: center; gap: 7px;
+  font-family: 'DM Mono', monospace; font-size: .68rem; color: var(--muted);
+}
+.dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--green); box-shadow: 0 0 8px var(--green);
+  animation: blink 2.2s ease-in-out infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+#countdown {
+  font-family: 'DM Mono', monospace; font-size: .68rem;
+  color: var(--muted);
+}
+
+.btn-refresh {
+  background: none; border: 1px solid var(--border);
+  color: var(--muted); font-family: 'DM Mono', monospace;
+  font-size: .72rem; padding: 7px 16px; border-radius: 6px;
+  cursor: pointer; transition: all .2s;
+  margin-top: 4px;
+}
+.btn-refresh:hover { border-color: var(--gold); color: var(--gold); }
+.btn-refresh:active { transform: scale(.97); }
+
+/* ── LAST UPDATED BAR ── */
+#status-bar {
+  font-family: 'DM Mono', monospace; font-size: .68rem;
+  color: var(--muted); margin-bottom: 28px;
+  display: flex; align-items: center; gap: 10px;
+}
+.status-line { flex: 1; height: 1px; background: var(--border); }
+
+/* ── GRID ── */
+#cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: 16px;
+}
+
+/* ── CARD ── */
+.card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 22px;
+  position: relative; overflow: hidden;
+  transition: border-color .3s, box-shadow .3s, transform .2s;
+  animation: slideUp .4s ease both;
+}
+@keyframes slideUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:none} }
+.card:hover { border-color: rgba(200,155,60,.35); transform: translateY(-2px); }
+
+/* In-game shimmer bar */
+.card.in-game {
+  border-color: rgba(74,144,217,.5);
+  box-shadow: 0 0 24px rgba(74,144,217,.1), inset 0 1px 0 rgba(74,144,217,.2);
+}
+.card.in-game::after {
+  content: '';
+  position: absolute; top: 0; left: -100%; width: 60%; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--blue), transparent);
+  animation: shimmer-bar 2.5s linear infinite;
+}
+@keyframes shimmer-bar { to{left:160%} }
+
+/* ── CARD HEAD ── */
+.card-head {
+  display: flex; align-items: center; gap: 14px; margin-bottom: 18px;
+}
+.avatar-ring {
+  flex-shrink: 0; width: 56px; height: 56px;
+  border-radius: 50%;
+  padding: 2px;
+  background: linear-gradient(135deg, var(--gold), transparent 60%);
+  position: relative;
+}
+.card.in-game .avatar-ring {
+  background: linear-gradient(135deg, var(--blue), transparent 60%);
+}
+.avatar {
+  width: 100%; height: 100%; border-radius: 50%;
+  object-fit: cover; display: block;
+  background: var(--bg3);
+}
+.lvl {
+  position: absolute; bottom: -3px; left: 50%; transform: translateX(-50%);
+  background: var(--bg3); border: 1px solid var(--border);
+  font-family: 'DM Mono', monospace; font-size: .58rem;
+  padding: 1px 5px; border-radius: 3px; color: var(--muted);
+  white-space: nowrap;
+}
+.name-block { flex: 1; min-width: 0; }
+.summoner-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.35rem; letter-spacing: 1px; line-height: 1;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.summoner-tag {
+  font-family: 'DM Mono', monospace; font-size: .68rem;
+  color: var(--muted); margin-top: 3px;
+}
+.ingame-badge {
+  flex-shrink: 0;
+  font-family: 'DM Mono', monospace; font-size: .62rem;
+  padding: 4px 9px; border-radius: 20px;
+}
+.ingame-badge.live {
+  background: rgba(74,144,217,.12);
+  color: var(--blue);
+  border: 1px solid rgba(74,144,217,.4);
+}
+.ingame-badge.idle {
+  background: var(--bg3); color: var(--muted);
+  border: 1px solid var(--border);
+}
+
+/* ── RANK CHIPS ── */
+.ranks { display: flex; gap: 8px; margin-bottom: 16px; }
+.rank-chip {
+  flex: 1; background: var(--bg3);
+  border: 1px solid var(--border); border-radius: 9px;
+  padding: 10px 12px;
+}
+.chip-label {
+  font-family: 'DM Mono', monospace; font-size: .58rem;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--muted); margin-bottom: 5px;
+}
+.chip-tier {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem; letter-spacing: .5px; line-height: 1;
+}
+.chip-lp  { font-family: 'DM Mono', monospace; font-size: .65rem; color: var(--muted); margin-top: 2px; }
+.chip-wr  { font-family: 'DM Mono', monospace; font-size: .65rem; margin-top: 2px; }
+
+/* tier palette */
+.t-iron        { color: #9e9e9e; }
+.t-bronze      { color: #cd7f32; }
+.t-silver      { color: #9ab0c0; }
+.t-gold        { color: var(--gold); }
+.t-platinum    { color: #3dc0a0; }
+.t-emerald     { color: #50c878; }
+.t-diamond     { color: #9ab8ff; }
+.t-master      { color: #d080ff; }
+.t-grandmaster { color: #ff6644; }
+.t-challenger  { color: var(--gold2); text-shadow: 0 0 12px rgba(240,206,113,.5); }
+.t-unranked    { color: var(--muted); }
+
+/* ── RECENT MATCHES ── */
+.section-label {
+  font-family: 'DM Mono', monospace; font-size: .6rem;
+  text-transform: uppercase; letter-spacing: 2px;
+  color: var(--muted); margin-bottom: 8px;
+}
+.matches { display: flex; gap: 6px; }
+.match-cell {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 3px; width: 46px;
+}
+.match-strip { width: 100%; height: 4px; border-radius: 2px; }
+.match-strip.w { background: var(--green); }
+.match-strip.l { background: var(--red); }
+.match-champ {
+  font-family: 'DM Mono', monospace; font-size: .55rem;
+  color: var(--muted); text-align: center;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%;
+}
+.match-kda {
+  font-family: 'DM Mono', monospace; font-size: .55rem; text-align: center;
+}
+.match-kda.w { color: var(--green); }
+.match-kda.l { color: var(--red); }
+
+/* ── FOOTER ── */
+.card-foot {
+  display: flex; align-items: center; justify-content: flex-end;
+  margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--border);
+}
+.upd {
+  font-family: 'DM Mono', monospace; font-size: .6rem;
+  color: var(--muted); margin-right: auto;
+}
+
+/* ── SKELETON ── */
+.skel {
+  background: linear-gradient(90deg,
+    var(--bg2) 25%, var(--bg3) 50%, var(--bg2) 75%);
+  background-size: 200% 100%;
+  animation: skimmer 1.5s infinite;
+  border-radius: 6px;
+}
+@keyframes skimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+/* ── TOAST ── */
+#toast {
+  position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%);
+  background: var(--bg3); border: 1px solid var(--border);
+  color: var(--text); font-family: 'DM Mono', monospace; font-size: .78rem;
+  padding: 10px 22px; border-radius: 8px;
+  opacity: 0; transition: opacity .25s;
+  pointer-events: none; z-index: 999;
+}
+#toast.show   { opacity: 1; }
+#toast.err    { border-color: var(--red); color: var(--red); }
+
+@media (max-width: 600px) {
+  .logo-title { font-size: 2.2rem; }
+  header { flex-direction: column; align-items: flex-start; gap: 16px; }
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+  <header>
+    <div class="logo-block">
+      <div class="logo-eyebrow">EUW · Season 2025</div>
+      <div class="logo-title">GG Tracker</div>
+    </div>
+    <div class="header-meta">
+      <div class="live-dot"><div class="dot"></div> live</div>
+      <div id="countdown">—</div>
+      <button class="btn-refresh" onclick="refreshAll()">↻ Actualizar</button>
+    </div>
+  </header>
+
+  <div id="status-bar">
+    <div class="status-line"></div>
+    <span id="last-updated">cargando...</span>
+    <div class="status-line"></div>
+  </div>
+
+  <div id="cards"></div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════════════════════════
+//  ★  CONFIGURA AQUÍ  ★
+//  Añade o quita jugadores de esta lista.
+//  Formato: { name: "GameName", tag: "TAG" }
+// ════════════════════════════════════════════════════════════════
+const PLAYERS = [
+  { name: "DDR4 2x16GB 3200",      tag: "pepi" },
+  { name: "LaDragonaTragona",       tag: "AWA" },
+  // añade más aquí...
+];
+
+// URL de tu API en Vercel (déjalo así, funciona automáticamente)
+const API = "/api/riot";
+
+// ════════════════════════════════════════════════════════════════
+
+const DDRAGON_V = "15.1.1"; // actualiza si cambia la versión
+const ICON = id => `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_V}/img/profileicon/${id}.png`;
+
+// Estado local
+let state = {}; // key → { puuid, summonerId, profileIconId, summonerLevel, data, lastUpdate }
+
+let cdSecs  = 300;
+let cdTimer = null;
+
+// ── INIT ─────────────────────────────────────────────────────────
+(async function init() {
+  renderSkeletons();
+  startCountdown();
+  await fetchBaseData();
+  await refreshAll();
+})();
+
+// ── BASE DATA (puuid + summoner) ─────────────────────────────────
+async function fetchBaseData() {
+  await Promise.all(PLAYERS.map(async p => {
+    const key = playerKey(p);
+    try {
+      const acc = await api(`/account/${enc(p.name)}/${enc(p.tag)}`);
+      const sum = await api(`/summoner/${acc.puuid}`);
+      state[key] = {
+        gameName: acc.gameName, tagLine: acc.tagLine,
+        puuid: acc.puuid, summonerId: sum.id,
+        profileIconId: sum.profileIconId,
+        summonerLevel: sum.summonerLevel,
+        data: null, lastUpdate: null
+      };
+    } catch(e) {
+      state[key] = {
+        gameName: p.name, tagLine: p.tag,
+        error: true, data: null, lastUpdate: null
+      };
+    }
+  }));
+}
+
+// ── REFRESH ALL ───────────────────────────────────────────────────
+async function refreshAll() {
+  await Promise.all(PLAYERS.map(p => refreshPlayer(playerKey(p))));
+  document.getElementById("last-updated").textContent =
+    "última actualización: " + new Date().toLocaleTimeString("es-ES");
+  resetCountdown();
+}
+
+async function refreshPlayer(key) {
+  const p = state[key];
+  if (!p || p.error) return;
+
+  try {
+    const [rankData, liveData, matchIds] = await Promise.all([
+      api(`/rank/${p.summonerId}`),
+      api(`/live/${p.puuid}`),
+      api(`/matches/${p.puuid}`)
+    ]);
+
+    const details = await Promise.all(
+      matchIds.slice(0, 5).map(id => api(`/match/${id}`).catch(() => null))
+    );
+
+    const recentMatches = details.filter(Boolean).map(m => {
+      const me = m.info.participants.find(x => x.puuid === p.puuid);
+      if (!me) return null;
+      return { win: me.win, champ: me.championName, k: me.kills, d: me.deaths, a: me.assists };
+    }).filter(Boolean);
+
+    const inGame = !!liveData.gameId;
+
+    state[key] = { ...p, data: { rankData, inGame, recentMatches }, lastUpdate: Date.now() };
+    renderCard(key);
+  } catch(e) {
+    console.warn("Error refresh", key, e);
+  }
+}
+
+// ── RENDER ────────────────────────────────────────────────────────
+function renderSkeletons() {
+  const c = document.getElementById("cards");
+  c.innerHTML = PLAYERS.map((p, i) => `
+    <div class="card" id="card-${i}" style="animation-delay:${i * 0.07}s">
+      <div class="card-head">
+        <div class="avatar-ring"><div class="avatar skel"></div></div>
+        <div style="flex:1">
+          <div class="skel" style="height:18px;width:70%;margin-bottom:6px"></div>
+          <div class="skel" style="height:11px;width:40%"></div>
+        </div>
+      </div>
+      <div class="skel" style="height:64px;margin-bottom:14px"></div>
+      <div class="skel" style="height:40px"></div>
+    </div>`).join("");
+}
+
+function renderCard(key) {
+  const idx = PLAYERS.findIndex(p => playerKey(p) === key);
+  if (idx === -1) return;
+  const el = document.getElementById("card-" + idx);
+  if (!el) return;
+
+  const p = state[key];
+  const d = p.data;
+  const inGame = d?.inGame;
+
+  el.className = "card" + (inGame ? " in-game" : "");
+  el.style.animationDelay = "";
+  el.innerHTML = buildCard(p, d);
+}
+
+function buildCard(p, d) {
+  if (p.error) {
+    return `
+      <div class="card-head">
+        <div style="font-family:'DM Mono',monospace;font-size:.8rem;color:var(--red)">
+          ✕ No encontrado: ${p.gameName}#${p.tagLine}
+        </div>
+      </div>`;
+  }
+
+  const soloQ = d?.rankData?.find(r => r.queueType === "RANKED_SOLO_5x5");
+  const flex   = d?.rankData?.find(r => r.queueType === "RANKED_FLEX_SR");
+  const inGame = d?.inGame;
+
+  const chipHTML = (rank, label) => {
+    if (!rank) return `
+      <div class="rank-chip">
+        <div class="chip-label">${label}</div>
+        <div class="chip-tier t-unranked">Unranked</div>
+      </div>`;
+    const tier = rank.tier.toLowerCase();
+    const wr   = Math.round(rank.wins / (rank.wins + rank.losses) * 100);
+    return `
+      <div class="rank-chip">
+        <div class="chip-label">${label}</div>
+        <div class="chip-tier t-${tier}">${rank.tier} ${rank.rank}</div>
+        <div class="chip-lp">${rank.leaguePoints} LP</div>
+        <div class="chip-wr ${wr>=50?"w":"l"}">${wr}% · ${rank.wins}W ${rank.losses}L</div>
+      </div>`;
+  };
+
+  const matchesHTML = d?.recentMatches?.length
+    ? d.recentMatches.map(m => `
+        <div class="match-cell">
+          <div class="match-strip ${m.win?"w":"l"}"></div>
+          <div class="match-champ">${m.champ}</div>
+          <div class="match-kda ${m.win?"w":"l"}">${m.k}/${m.d}/${m.a}</div>
+        </div>`).join("")
+    : `<span style="font-size:.7rem;color:var(--muted);font-family:'DM Mono',monospace">sin partidas rankeds recientes</span>`;
+
+  const upd = p.lastUpdate
+    ? "hace " + Math.max(0, Math.round((Date.now()-p.lastUpdate)/60000)) + " min"
+    : "—";
+
+  return `
+    <div class="card-head">
+      <div class="avatar-ring">
+        <img class="avatar" src="${ICON(p.profileIconId)}"
+             onerror="this.src='${ICON(29)}'"/>
+        <div class="lvl">${p.summonerLevel}</div>
+      </div>
+      <div class="name-block">
+        <div class="summoner-name">${p.gameName}</div>
+        <div class="summoner-tag">#${p.tagLine}</div>
+      </div>
+      <div class="ingame-badge ${inGame?"live":"idle"}">
+        ${inGame ? "● IN GAME" : "· offline"}
+      </div>
+    </div>
+
+    ${d ? `
+    <div class="ranks">
+      ${chipHTML(soloQ, "Solo/Duo")}
+      ${chipHTML(flex, "Flex")}
+    </div>
+    <div class="section-label">Últimas 5 partidas ranked</div>
+    <div class="matches">${matchesHTML}</div>
+    ` : `
+    <div class="skel" style="height:64px;margin-bottom:14px"></div>
+    <div class="skel" style="height:40px"></div>
+    `}
+
+    <div class="card-foot">
+      <span class="upd">⟳ ${upd}</span>
+    </div>`;
+}
+
+// ── COUNTDOWN ─────────────────────────────────────────────────────
+function startCountdown() {
+  clearInterval(cdTimer);
+  cdTimer = setInterval(async () => {
+    cdSecs--;
+    const m = Math.floor(cdSecs / 60);
+    const s = String(cdSecs % 60).padStart(2, "0");
+    document.getElementById("countdown").textContent = `refresh en ${m}:${s}`;
+    if (cdSecs <= 0) { await refreshAll(); }
+  }, 1000);
+}
+function resetCountdown() { cdSecs = 300; startCountdown(); }
+
+// ── HELPERS ───────────────────────────────────────────────────────
+function playerKey(p) { return `${p.name.toLowerCase()}#${p.tag.toLowerCase()}`; }
+function enc(s) { return encodeURIComponent(s); }
+
+async function api(path) {
+  // Separa query string del path
+  const [p, qs] = path.split("?");
+  const url = API + `?path=${enc(p)}` + (qs ? `&qs=${enc(qs)}` : "");
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json();
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────
+function toast(msg, err=false) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.className = "show" + (err?" err":"");
+  clearTimeout(t._t);
+  t._t = setTimeout(() => t.className="", 3000);
+}
+</script>
+</body>
+</html>
