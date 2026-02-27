@@ -12,7 +12,7 @@ const CORS_HEADERS = {
   "Content-Type": "application/json",
 };
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
   // Preflight
   if (req.method === "OPTIONS") {
     return res.status(200).set(CORS_HEADERS).end();
