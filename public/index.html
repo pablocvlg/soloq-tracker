@@ -125,7 +125,7 @@ header { display: flex; align-items: flex-end; justify-content: space-between; p
 .list-name { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; letter-spacing:1px; line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .list-tag  { font-family:'DM Mono',monospace; font-size:.62rem; color:var(--muted); }
 
-.list-matches { display:flex; gap:4px; flex:1; justify-content:center; align-items:center; position:relative; }
+.list-matches { display:flex; gap:4px; flex:0 0 430px; justify-content:center; align-items:center; position:relative; }
 .list-mcell { display:flex; flex-direction:column; align-items:center; gap:2px; width:28px; position:relative; cursor:default; }
 .list-mcell:hover .list-tooltip { opacity:1; }
 .list-tooltip { position:absolute; bottom:calc(100% + 5px); left:50%; transform:translateX(-50%); background:var(--bg3); border:1px solid var(--border); color:var(--text); font-family:'DM Mono',monospace; font-size:.6rem; padding:3px 7px; border-radius:5px; white-space:nowrap; opacity:0; transition:opacity .15s; z-index:10; pointer-events:none; }
@@ -133,7 +133,7 @@ header { display: flex; align-items: flex-end; justify-content: space-between; p
 .list-mstrip.w { background:var(--green); }
 .list-mstrip.l { background:var(--red); }
 .list-mchamp { font-family:'DM Mono',monospace; font-size:.48rem; color:var(--muted); text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; }
-.list-streak { font-family:'DM Mono',monospace; font-size:.55rem; padding:1px 6px; border-radius:20px; flex-shrink:0; white-space:nowrap; }
+.list-streak { position: absolute; right: -60px; top: 50%; transform: translateY(-50%);font-family:'DM Mono',monospace; font-size:.55rem; padding:1px 6px; border-radius:20px; flex-shrink:0; white-space:nowrap; }
 .list-streak.w { background:rgba(74,217,122,.12); color:var(--green); border:1px solid rgba(74,217,122,.3); }
 .list-streak.l { background:rgba(217,83,74,.12); color:var(--red); border:1px solid rgba(217,83,74,.3); }
 
