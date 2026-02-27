@@ -578,7 +578,7 @@ function buildListRow(p, pos) {
   const wrStr   = wr !== null ? `${wr}% WR` : "";
   const wrCls   = wr !== null ? (wr>=50?"wr-w":"wr-l") : "";
 
-  const matchesHTML = d?.recentMatches?.slice(0,5).map(m=>`
+  const matchesHTML = d?.recentMatches?.slice(0,3).map(m=>`
     <div class="list-match-pip">
       <div class="list-match-strip ${m.win?"w":"l"}"></div>
       <div class="list-match-champ">${m.champ}</div>
