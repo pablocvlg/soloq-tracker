@@ -44,11 +44,11 @@ module.exports = async function handler(req, res) {
         `${EUW}/lol/summoner/v4/summoners/by-puuid/${puuid}`);
     }
 
-    // ── /rank/:summonerId ────────────────────────────────────────
+    // ── /rank/:puuid ─────────────────────────────────────────────
     if (path.startsWith("/rank/")) {
-      const id = path.split("/")[2];
+      const puuid = path.split("/")[2];
       return proxy(res, apiKey,
-        `${EUW}/lol/league/v4/entries/by-summoner/${id}`);
+        `${EUW}/lol/league/v4/entries/by-puuid/${puuid}`);
     }
 
     // ── /live/:puuid ─────────────────────────────────────────────

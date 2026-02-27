@@ -357,7 +357,7 @@ async function fetchBaseData() {
       const sum = await api(`/summoner/${acc.puuid}`);
       state[key] = {
         gameName: acc.gameName, tagLine: acc.tagLine,
-        puuid: acc.puuid, summonerId: sum.id,
+        puuid: acc.puuid, summonerId: acc.puuid,
         profileIconId: sum.profileIconId,
         summonerLevel: sum.summonerLevel,
         data: null, lastUpdate: null
