@@ -104,7 +104,6 @@ header { display: flex; align-items: flex-end; justify-content: space-between; p
 .p-mstrip.w { background:var(--green); }
 .p-mstrip.l { background:var(--red); }
 .p-mchamp { font-family:'DM Mono',monospace; font-size:.42rem; color:var(--muted); text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%; }
-/* Streak badge */
 .streak-badge { display:inline-flex; align-items:center; gap:4px; margin-top:8px; font-family:'DM Mono',monospace; font-size:.58rem; padding:2px 8px; border-radius:20px; }
 .streak-badge.w { background:rgba(74,217,122,.12); color:var(--green); border:1px solid rgba(74,217,122,.3); }
 .streak-badge.l { background:rgba(217,83,74,.12); color:var(--red); border:1px solid rgba(217,83,74,.3); }
@@ -125,7 +124,11 @@ header { display: flex; align-items: flex-end; justify-content: space-between; p
 .list-name { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; letter-spacing:1px; line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .list-tag  { font-family:'DM Mono',monospace; font-size:.62rem; color:var(--muted); }
 
-.list-matches { display:flex; gap:4px; flex:1; justify-content:center; align-items:center; position:relative; }
+/* Wrapper columna: partidas arriba, badge abajo con altura fija */
+.list-matches-wrap { display:flex; flex:1; flex-direction:column; align-items:center; gap:4px; }
+.list-matches { display:flex; gap:4px; justify-content:center; align-items:center; position:relative; }
+.list-streak-wrap { height:16px; display:flex; align-items:center; justify-content:center; }
+
 .list-mcell { display:flex; flex-direction:column; align-items:center; gap:2px; width:28px; position:relative; cursor:default; }
 .list-mcell:hover .list-tooltip { opacity:1; }
 .list-tooltip { position:absolute; bottom:calc(100% + 5px); left:50%; transform:translateX(-50%); background:var(--bg3); border:1px solid var(--border); color:var(--text); font-family:'DM Mono',monospace; font-size:.6rem; padding:3px 7px; border-radius:5px; white-space:nowrap; opacity:0; transition:opacity .15s; z-index:10; pointer-events:none; }
@@ -138,7 +141,8 @@ header { display: flex; align-items: flex-end; justify-content: space-between; p
 .list-streak.l { background:rgba(217,83,74,.12); color:var(--red); border:1px solid rgba(217,83,74,.3); }
 
 .list-rank-block { text-align:right; flex-shrink:0; }
-.list-tier { font-family:'Bebas Neue',sans-serif; font-size:1rem; letter-spacing:.5px; }
+/* tier ahora muestra "PLATINUM IV — 32LP" en una línea */
+.list-tier { font-family:'DM Mono',monospace; font-size:.68rem; letter-spacing:.3px; white-space:nowrap; }
 .list-lp   { font-family:'DM Mono',monospace; font-size:.62rem; color:var(--muted); }
 .list-wr   { font-family:'DM Mono',monospace; font-size:.62rem; }
 .list-wl   { font-family:'DM Mono',monospace; font-size:.58rem; color:var(--muted); }
@@ -163,7 +167,7 @@ header { display: flex; align-items: flex-end; justify-content: space-between; p
 @media (max-width:800px) {
   #podium { flex-direction:column; align-items:center; }
   .podium-card { width:90% !important; max-width:320px; order:unset !important; margin-top:0 !important; margin-bottom:0 !important; }
-  .list-matches { display:none; }
+  .list-matches-wrap { display:none; }
 }
 
 .podium-card,
@@ -205,7 +209,7 @@ a {
 const DDRAGON_V  = "15.1.1";
 const API_BASE   = "/api/riot";
 const ICON       = id => `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_V}/img/profileicon/${id}.png`;
-const MATCH_DELAY = 1200; // ms entre llamadas de detalle de partida
+const MATCH_DELAY = 1200;
 
 function opggUrl(p) {
   const name = encodeURIComponent(p.gameName);
@@ -213,8 +217,7 @@ function opggUrl(p) {
   return `https://op.gg/es/lol/summoners/euw/${name}-${tag}`;
 }
 
-// ── localStorage cache para partidas ──────────────────────────
-// matchCache[matchId][puuid] = { win, champ, k, d, a }
+// localStorage cache para partidas
 function loadMatchCache() {
   try { return JSON.parse(localStorage.getItem("awa_mc_v2") || "{}"); } catch { return {}; }
 }
@@ -230,16 +233,13 @@ let players = [];
 let cdSecs  = 3600;
 let cdTimer = null;
 
-// ── INIT ──────────────────────────────────────────────────────
 (async function init() {
   renderLoadingState();
   await loadSnapshot();
   startCountdown();
-  // Cargar partidas en background sin bloquear la UI
   loadAllMatches();
 })();
 
-// ── SNAPSHOT: rank + live + matchIds ─────────────────────────
 async function loadSnapshot(force = false) {
   try {
     const res  = await fetch("/api/snapshot" + (force ? "?force=1" : ""));
@@ -251,7 +251,6 @@ async function loadSnapshot(force = false) {
     document.getElementById("last-updated").textContent = `datos de las ${hora} (${origen})`;
     const elapsed = Date.now() - data.updatedAt;
     cdSecs = Math.max(10, Math.floor((3600000 - elapsed) / 1000));
-    // Mezclar partidas ya cacheadas antes de renderizar
     injectCachedMatches();
     renderEverything();
   } catch (e) {
@@ -261,7 +260,6 @@ async function loadSnapshot(force = false) {
   }
 }
 
-// Inyecta en cada jugador las partidas que ya tiene el localStorage
 function injectCachedMatches() {
   for (const p of players) {
     if (p.error || !p.matchIds) continue;
@@ -271,31 +269,27 @@ function injectCachedMatches() {
   }
 }
 
-// ── CARGAR PARTIDAS EN BACKGROUND ────────────────────────────
-// Solo pide las que no están en matchCache, en serie con delay
 let matchesLoading = false;
 async function loadAllMatches() {
   if (matchesLoading) return;
   matchesLoading = true;
 
   let downloaded = 0;
-  // Recoge todos los matchIds únicos que faltan
-  const needed = new Map(); // matchId → Set<puuid>
+  const needed = new Map();
   for (const p of players) {
     if (p.error || !p.matchIds) continue;
     for (const id of p.matchIds) {
-      if (matchCache[id]?.[p.puuid]) continue; // ya lo tenemos
+      if (matchCache[id]?.[p.puuid]) continue;
       if (!needed.has(id)) needed.set(id, new Set());
       needed.get(id).add(p.puuid);
     }
   }
 
-  for (const [id, puuids] of needed) {
+  for (const [id] of needed) {
     try {
       const r = await fetch(`${API_BASE}?path=${encodeURIComponent("/match/" + id)}`);
       if (!r.ok) throw new Error("HTTP " + r.status);
       const m = await r.json();
-      // Guardar perspectiva de cada participante
       if (!matchCache[id]) matchCache[id] = {};
       for (const part of m.info.participants) {
         matchCache[id][part.puuid] = {
@@ -308,7 +302,6 @@ async function loadAllMatches() {
       }
       downloaded++;
       saveMatchCache();
-      // Re-inyectar y re-renderizar con lo que hay hasta ahora
       injectCachedMatches();
       renderEverything();
     } catch (err) {
@@ -318,12 +311,9 @@ async function loadAllMatches() {
   }
 
   matchesLoading = false;
-  if (downloaded > 0) {
-    console.log(`[matches] ${downloaded} nuevas descargadas`);
-  }
+  if (downloaded > 0) console.log(`[matches] ${downloaded} nuevas descargadas`);
 }
 
-// ── BOTÓN ACTUALIZAR ──────────────────────────────────────────
 async function forceRefresh() {
   const btn = document.getElementById("btn-refresh");
   btn.disabled = true;
@@ -331,11 +321,9 @@ async function forceRefresh() {
   await loadSnapshot(true);
   toast("¡Actualizado!");
   btn.disabled = false;
-  // Volver a cargar partidas nuevas si las hay
   loadAllMatches();
 }
 
-// ── COUNTDOWN ─────────────────────────────────────────────────
 function startCountdown() {
   clearInterval(cdTimer);
   cdTimer = setInterval(async () => {
@@ -353,7 +341,6 @@ function startCountdown() {
   }, 1000);
 }
 
-// ── RENDER ────────────────────────────────────────────────────
 function rankScore(p) {
   const s = (p.rankData || []).find(r => r.queueType === "RANKED_SOLO_5x5");
   if (!s) return -1;
@@ -362,9 +349,16 @@ function rankScore(p) {
 
 function rankInfo(p) {
   const s = (p.rankData || []).find(r => r.queueType === "RANKED_SOLO_5x5");
-  if (!s) return { tierCls: "t-unranked", tierStr: "Unranked", lp: "", wr: null, wl: "" };
+  if (!s) return { tierCls: "t-unranked", tierStr: "Unranked", tierLp: "Unranked", lp: "", wr: null, wl: "" };
   const wr = Math.round(s.wins / (s.wins + s.losses) * 100);
-  return { tierCls: "t-" + s.tier.toLowerCase(), tierStr: s.tier + " " + s.rank, lp: s.leaguePoints + " LP", wr, wl: s.wins + "W " + s.losses + "L" };
+  return {
+    tierCls: "t-" + s.tier.toLowerCase(),
+    tierStr: s.tier + " " + s.rank,
+    tierLp:  s.tier + " " + s.rank + " — " + s.leaguePoints + "LP",
+    lp:      s.leaguePoints + " LP",
+    wr,
+    wl:      s.wins + "W " + s.losses + "L",
+  };
 }
 
 function wrCls(wr) {
@@ -416,14 +410,11 @@ function renderLoadingState() {
 }
 
 function streakInfo(matches) {
-  // matches ordenadas: index 0 = más antigua, último = más reciente (después de reverse)
-  // Calculamos desde el más reciente (último elemento)
   if (!matches || !matches.length) return null;
-  const rev = [...matches]; // ya están en orden cronológico (antiguo→reciente)
-  const last = rev[rev.length - 1];
+  const last = matches[matches.length - 1];
   let count = 0;
-  for (let i = rev.length - 1; i >= 0; i--) {
-    if (rev[i].win === last.win) count++;
+  for (let i = matches.length - 1; i >= 0; i--) {
+    if (matches[i].win === last.win) count++;
     else break;
   }
   return count >= 3 ? { count, win: last.win } : null;
@@ -431,7 +422,7 @@ function streakInfo(matches) {
 
 function podiumStrips(p) {
   if (!p.recentMatches?.length) return "";
-  const ordered = [...p.recentMatches].reverse(); // antiguo→reciente
+  const ordered = [...p.recentMatches].reverse();
   const cells = ordered.map(m => `
     <div class="p-mcell">
       <div class="p-mstrip ${m.win ? "w" : "l"}"></div>
@@ -445,7 +436,7 @@ function podiumStrips(p) {
 
 function listStrips(p) {
   if (!p.recentMatches?.length) return "";
-  const ordered = [...p.recentMatches].reverse(); // antiguo→reciente
+  const ordered = [...p.recentMatches].reverse();
   const cells = ordered.map(m => `
     <div class="list-mcell">
       <div class="list-mstrip ${m.win ? "w" : "l"}"></div>
@@ -453,8 +444,11 @@ function listStrips(p) {
       <div class="list-tooltip">${m.champ}</div>
     </div>`).join("");
   const streak = streakInfo(ordered);
-  const badge = streak ? `<span class="list-streak ${streak.win ? "w" : "l"}">🔥${streak.count}${streak.win ? "W" : "L"}</span>` : "";
-  return `<div class="list-matches">${cells}${badge}</div>`;
+  // Badge en contenedor de altura fija — no desplaza las partidas
+  const badge = streak
+    ? `<div class="list-streak-wrap"><span class="list-streak ${streak.win ? "w" : "l"}">🔥${streak.count}${streak.win ? "W" : "L"}</span></div>`
+    : `<div class="list-streak-wrap"></div>`;
+  return `<div class="list-matches-wrap"><div class="list-matches">${cells}</div>${badge}</div>`;
 }
 
 function renderPodium(top3) {
@@ -510,8 +504,7 @@ function buildRow(p, pos) {
         </div>
         ${listStrips(p)}
         <div class="list-rank-block">
-          <div class="list-tier ${r.tierCls}">${r.tierStr}</div>
-          <div class="list-lp">${r.lp}</div>
+          <div class="list-tier ${r.tierCls}">${r.tierLp}</div>
           ${r.wr !== null ? `<div class="list-wr ${wrCls(r.wr)}">${r.wr}% WR</div>` : ""}
           <div class="list-wl">${r.wl}</div>
         </div>
