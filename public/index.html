@@ -54,7 +54,6 @@ body::after {
   max-width: 1100px; margin: 0 auto; padding: 0 28px 100px;
 }
 
-/* ── HEADER ── */
 header {
   display: flex; align-items: flex-end; justify-content: space-between;
   padding: 36px 0 24px;
@@ -90,9 +89,9 @@ header {
   font-size: .72rem; padding: 7px 16px; border-radius: 6px;
   cursor: pointer; transition: all .2s; margin-top: 4px;
 }
-.btn-refresh:hover { border-color: var(--gold); color: var(--gold); }
+.btn-refresh:hover  { border-color: var(--gold); color: var(--gold); }
+.btn-refresh:disabled { opacity: .35; cursor: not-allowed; }
 
-/* ── STATUS BAR ── */
 #status-bar {
   font-family: 'DM Mono', monospace; font-size: .68rem;
   color: var(--muted); margin-bottom: 0;
@@ -100,38 +99,25 @@ header {
 }
 .status-line { flex: 1; height: 1px; background: var(--border); }
 
-/* ════════════════════════════════════
-   PODIUM
-════════════════════════════════════ */
+/* ── PODIUM ── */
 #podium {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 16px;
-  margin-bottom: 0;
+  display: flex; align-items: flex-start; justify-content: center;
+  gap: 16px; margin-bottom: 0;
 }
-
 .podium-card {
-  border-radius: 16px;
-  padding: 24px 20px 20px;
+  border-radius: 16px; padding: 24px 20px 20px;
   position: relative; overflow: hidden;
-  display: flex; flex-direction: column; align-items: center;
-  text-align: center;
-  transition: transform .25s;
-  animation: riseUp .6s ease both;
-  flex-shrink: 0;
+  display: flex; flex-direction: column; align-items: center; text-align: center;
+  transition: transform .25s; animation: riseUp .6s ease both; flex-shrink: 0;
 }
 .podium-card:hover { transform: translateY(-4px); }
 @keyframes riseUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
-
 .podium-card.in-game::after {
-  content: '';
-  position: absolute; top: 0; left: -100%; width: 60%; height: 2px;
+  content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 2px;
   background: linear-gradient(90deg, transparent, var(--blue), transparent);
   animation: shimmer-bar 2.5s linear infinite;
 }
 @keyframes shimmer-bar { to{left:160%} }
-
 .podium-card.p1 {
   width: 300px; order: 2;
   background: linear-gradient(160deg, #1a1408 0%, #0f0d08 60%, #0a0c10 100%);
@@ -162,7 +148,6 @@ header {
   content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
   background: linear-gradient(90deg, transparent, var(--bronze), var(--bronze2), var(--bronze), transparent);
 }
-
 .medal {
   font-family: 'Bebas Neue', sans-serif; font-size: .75rem; letter-spacing: 2px;
   padding: 3px 10px; border-radius: 20px; margin-bottom: 16px;
@@ -170,7 +155,6 @@ header {
 .p1 .medal { color: var(--gold2);   background: rgba(200,155,60,.15); border: 1px solid rgba(200,155,60,.3); }
 .p2 .medal { color: var(--silver2); background: rgba(154,176,192,.1); border: 1px solid rgba(154,176,192,.25); }
 .p3 .medal { color: var(--bronze2); background: rgba(205,127,50,.1);  border: 1px solid rgba(205,127,50,.25); }
-
 .p-avatar-ring { border-radius: 50%; padding: 3px; position: relative; margin-bottom: 14px; }
 .p1 .p-avatar-ring { background: linear-gradient(135deg, var(--gold2), var(--gold), transparent); width: 88px; height: 88px; }
 .p2 .p-avatar-ring { background: linear-gradient(135deg, var(--silver2), var(--silver), transparent); width: 72px; height: 72px; }
@@ -185,27 +169,24 @@ header {
 .p-name { font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
 .p1 .p-name { font-size: 1.5rem; color: var(--gold2); }
 .p2 .p-name, .p3 .p-name { font-size: 1.2rem; color: var(--text); }
-.p-tag { font-family: 'DM Mono', monospace; font-size: .65rem; color: var(--muted); margin-top: 3px; margin-bottom: 14px; }
+.p-tag  { font-family: 'DM Mono', monospace; font-size: .65rem; color: var(--muted); margin-top: 3px; margin-bottom: 14px; }
 .p-rank { font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; line-height: 1; margin-bottom: 4px; }
 .p1 .p-rank { font-size: 1.6rem; }
 .p2 .p-rank, .p3 .p-rank { font-size: 1.3rem; }
-.p-lp  { font-family: 'DM Mono', monospace; font-size: .65rem; color: var(--muted); margin-bottom: 4px; }
-.p-wr  { font-family: 'DM Mono', monospace; font-size: .65rem; margin-bottom: 3px; }
-.p-wl  { font-family: 'DM Mono', monospace; font-size: .6rem; color: var(--muted); }
+.p-lp   { font-family: 'DM Mono', monospace; font-size: .65rem; color: var(--muted); margin-bottom: 4px; }
+.p-wr   { font-family: 'DM Mono', monospace; font-size: .65rem; margin-bottom: 3px; }
+.p-wl   { font-family: 'DM Mono', monospace; font-size: .6rem; color: var(--muted); }
 .p-ingame { margin-top: 12px; font-family: 'DM Mono', monospace; font-size: .6rem; padding: 3px 9px; border-radius: 20px; }
 .p-ingame.live { background: rgba(74,144,217,.12); color: var(--blue); border: 1px solid rgba(74,144,217,.4); }
 .p-ingame.idle { background: var(--bg3); color: var(--muted); border: 1px solid var(--border); }
 
-/* ════════════════════════════════════
-   LIST
-════════════════════════════════════ */
+/* ── LIST ── */
 .list-label {
   font-family: 'DM Mono', monospace; font-size: .65rem;
   text-transform: uppercase; letter-spacing: 3px;
   color: var(--muted); margin-bottom: 14px;
 }
 #list { display: flex; flex-direction: column; gap: 10px; }
-
 .list-row {
   background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
   padding: 14px 18px; display: flex; align-items: center; gap: 16px;
@@ -241,7 +222,6 @@ header {
 .list-ingame.live { background: rgba(0,128,255,.18); color: var(--blue); border: 1px solid rgba(0,128,255,.6); box-shadow: 0 0 12px rgba(0,128,255,.4); }
 .list-ingame.idle { background: var(--bg3); color: var(--muted); border: 1px solid var(--border); }
 
-/* tier colors */
 .t-iron        { color: #9e9e9e; }
 .t-bronze      { color: #cd7f32; }
 .t-silver      { color: #9ab0c0; }
@@ -253,9 +233,9 @@ header {
 .t-grandmaster { color: #ff6644; }
 .t-challenger  { color: var(--gold2); text-shadow: 0 0 12px rgba(240,206,113,.5); }
 .t-unranked    { color: var(--muted); }
-.wr-w { color: var(--green); }
+.wr-w   { color: var(--green); }
 .wr-mid { color: var(--gold); }
-.wr-l { color: var(--red); }
+.wr-l   { color: var(--red); }
 
 .skel {
   background: linear-gradient(90deg, var(--bg2) 25%, var(--bg3) 50%, var(--bg2) 75%);
@@ -275,13 +255,12 @@ header {
 
 @media (max-width: 700px) {
   #podium { flex-direction: column; align-items: center; }
-  .podium-card { width: 90% !important; max-width: 300px; order: unset !important; margin-top: 0 !important; }
+  .podium-card { width: 90% !important; max-width: 300px; order: unset !important; margin-top: 0 !important; margin-bottom: 0 !important; }
 }
 </style>
 </head>
 <body>
 <div class="wrapper">
-
   <header>
     <div class="logo-block">
       <div class="logo-eyebrow">Season 16</div>
@@ -290,7 +269,7 @@ header {
     <div class="header-meta">
       <div class="live-dot"><div class="dot"></div>En directo</div>
       <div id="countdown">—</div>
-      <button class="btn-refresh" onclick="refreshAll()">↻ Actualizar</button>
+      <button class="btn-refresh" id="btn-refresh" onclick="forceRefresh()">↻ Actualizar</button>
     </div>
   </header>
 
@@ -303,40 +282,19 @@ header {
   <div class="list-label" id="list-label" style="display:block">CLASIFICACIÓN</div>
   <div id="podium"></div>
   <div id="list"></div>
-
 </div>
 <div id="toast"></div>
 
 <script>
-// ════════════════════════════════════════════════════════════════
-//  ★  CONFIGURA AQUÍ  ★
-// ════════════════════════════════════════════════════════════════
-const PLAYERS = [
-  { name: "DDR4 2x16GB 3600", tag: "pepi" },
-  { name: "LaDragonaTragona",  tag: "AWA" },
-  { name: "lil yowi",  tag: "TS13" },
-  { name: "lil aitor",  tag: "EUW" },
-  { name: "comehigados",  tag: "EUW" },
-  { name: "pepi",  tag: "346" },
-  { name: "PapeldeCulo",  tag: "EUW" },
-  { name: "FinElGitΔno",  tag: "695" },
-  { name: "Xus17zgZ",  tag: "EUW" },
-  { name: "Si hombre",  tag: "TMAWA" },
-  { name: "Epst3inBunny",  tag: "meow" },
-  { name: "her D is bigger",  tag: "cnc" },
-];
-
-const API       = "/api/riot";
 const DDRAGON_V = "15.1.1";
-const DELAY_MS  = 200;
 const ICON = id => `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_V}/img/profileicon/${id}.png`;
-// ════════════════════════════════════════════════════════════════
-
-let state = {};
-let cdSecs = 3600, cdTimer = null;
 
 const TIER_ORDER = { IRON:0,BRONZE:1,SILVER:2,GOLD:3,PLATINUM:4,EMERALD:5,DIAMOND:6,MASTER:7,GRANDMASTER:8,CHALLENGER:9 };
 const RANK_ORDER = { IV:0,III:1,II:2,I:3 };
+
+let players = [];
+let updatedAt = null;
+let cdTimer = null, cdSecs = 3600;
 
 function rankScore(rankData) {
   const s = rankData?.find(r => r.queueType === "RANKED_SOLO_5x5");
@@ -344,85 +302,82 @@ function rankScore(rankData) {
   return (TIER_ORDER[s.tier]??-1)*10000 + (RANK_ORDER[s.rank]??0)*1000 + (s.leaguePoints||0);
 }
 
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
 // ── INIT ──────────────────────────────────────────────────────
 (async function init() {
   renderLoadingState();
   startCountdown();
-  await fetchBaseData();
-  await refreshAll();
+  await loadSnapshot();
 })();
 
-// ── BASE DATA: account + summoner, escalonado ─────────────────
-async function fetchBaseData() {
-  for (const p of PLAYERS) {
-    const key = playerKey(p);
-    try {
-      const acc = await api(`/account/${enc(p.name)}/${enc(p.tag)}`);
-      await sleep(DELAY_MS);
-      const sum = await api(`/summoner/${acc.puuid}`);
-      state[key] = {
-        gameName: acc.gameName, tagLine: acc.tagLine,
-        puuid: acc.puuid,
-        profileIconId: sum.profileIconId,
-        summonerLevel: sum.summonerLevel,
-        data: null, lastUpdate: null
-      };
-    } catch(e) {
-      state[key] = { gameName: p.name, tagLine: p.tag, error: true };
-    }
-    await sleep(DELAY_MS);
-  }
-}
-
-// ── REFRESH: rank + live, escalonado ─────────────────────────
-async function refreshAll() {
-  for (const p of PLAYERS) {
-    await refreshPlayer(playerKey(p));
-    await sleep(DELAY_MS);
-  }
-  document.getElementById("last-updated").textContent =
-    "última actualización: " + new Date().toLocaleTimeString("es-ES");
-  resetCountdown();
-  renderEverything();
-}
-
-async function refreshPlayer(key) {
-  const p = state[key];
-  if (!p || p.error) return;
+// ── CARGAR SNAPSHOT (cacheado en servidor) ────────────────────
+async function loadSnapshot(force = false) {
   try {
-    const [rankData, liveData] = await Promise.all([
-      api(`/rank/${p.puuid}`),
-      api(`/live/${p.puuid}`)
-    ]);
-    state[key] = {
-      ...p,
-      data: { rankData, inGame: !!liveData.gameId },
-      lastUpdate: Date.now()
-    };
+    const url = "/api/snapshot" + (force ? "?force=1" : "");
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data = await r.json();
+
+    players   = data.players || [];
+    updatedAt = data.updatedAt;
+
+    const date   = new Date(updatedAt);
+    const cached = data.cached ? " (caché)" : " (actualizado)";
+    document.getElementById("last-updated").textContent =
+      "datos de las " + date.toLocaleTimeString("es-ES") + cached;
+
+    // El countdown se basa en cuánto tiempo queda hasta que el caché expire en el servidor
+    const elapsed = Date.now() - updatedAt;
+    cdSecs = Math.max(0, Math.floor((3600000 - elapsed) / 1000));
+    resetCountdown();
+
+    renderEverything();
   } catch(e) {
-    console.warn("Error refresh", key, e);
+    console.error(e);
+    document.getElementById("last-updated").textContent = "error al cargar datos";
+    toast("Error al cargar datos", true);
   }
 }
 
-// ── SORT & RENDER ─────────────────────────────────────────────
+// ── FORZAR REFRESH (botón) ────────────────────────────────────
+async function forceRefresh() {
+  const btn = document.getElementById("btn-refresh");
+  btn.disabled = true;
+  toast("Actualizando datos...");
+  await loadSnapshot(true);
+  btn.disabled = false;
+  toast("¡Actualizado!");
+}
+
+// ── AUTO-REFRESH cada hora (sincronizado con el servidor) ─────
+function startCountdown() {
+  clearInterval(cdTimer);
+  cdTimer = setInterval(async () => {
+    cdSecs--;
+    const h = Math.floor(cdSecs / 3600);
+    const m = Math.floor((cdSecs % 3600) / 60);
+    const s = String(cdSecs % 60).padStart(2, "0");
+    document.getElementById("countdown").textContent =
+      h > 0 ? `refresh en ${h}h ${m}m` : `refresh en ${m}:${s}`;
+    if (cdSecs <= 0) await loadSnapshot();
+  }, 1000);
+}
+function resetCountdown() { startCountdown(); } // cdSecs ya fue fijado antes de llamar esto
+
+// ── RENDER ────────────────────────────────────────────────────
 function sortedPlayers() {
-  return PLAYERS
-    .map(p => state[playerKey(p)] || { gameName: p.name, tagLine: p.tag, error: true })
-    .sort((a,b) => rankScore(b.data?.rankData) - rankScore(a.data?.rankData));
+  return [...players].sort((a,b) => rankScore(b.rankData) - rankScore(a.rankData));
 }
 
 function renderEverything() {
   const sorted = sortedPlayers();
-  renderPodium(sorted.slice(0,3));
+  renderPodium(sorted.slice(0, 3));
   const rest = sorted.slice(3);
   const listEl    = document.getElementById("list");
   const listLabel = document.getElementById("list-label");
   listEl.innerHTML = "";
   if (rest.length > 0) {
     listLabel.style.display = "block";
-    rest.forEach((p, i) => listEl.insertAdjacentHTML("beforeend", buildListRow(p, i+4)));
+    rest.forEach((p, i) => listEl.insertAdjacentHTML("beforeend", buildListRow(p, i + 4)));
   } else {
     listLabel.style.display = "none";
   }
@@ -454,6 +409,13 @@ function renderLoadingState() {
     </div>`;
 }
 
+function wrClass(wr) {
+  if (wr === null) return "";
+  if (wr > 52) return "wr-w";
+  if (wr >= 49) return "wr-mid";
+  return "wr-l";
+}
+
 function renderPodium(top3) {
   const podium = document.getElementById("podium");
   podium.innerHTML = "";
@@ -464,24 +426,12 @@ function renderPodium(top3) {
   ];
   slots.forEach(({ p, cls, label, delay }) => {
     if (!p) return;
-    const d      = p.data;
-    const soloQ  = d?.rankData?.find(r => r.queueType === "RANKED_SOLO_5x5");
-    const inGame = d?.inGame;
+    const soloQ   = p.rankData?.find(r => r.queueType === "RANKED_SOLO_5x5");
+    const inGame  = p.inGame;
     const tierCls = soloQ ? "t-"+soloQ.tier.toLowerCase() : "t-unranked";
     const tierStr = soloQ ? `${soloQ.tier} ${soloQ.rank}` : "Unranked";
     const lpStr   = soloQ ? `${soloQ.leaguePoints} LP` : "—";
     const wr      = soloQ ? Math.round(soloQ.wins/(soloQ.wins+soloQ.losses)*100) : null;
-    const wrStr   = wr !== null ? `${wr}% WR` : "";
-    let wrCls = "";
-    if (wr !== null) {
-        if (wr >= 49 && wr <= 52) {
-            wrCls = "wr-mid";
-        } else if (wr > 52) {
-            wrCls = "wr-w";
-        } else {
-            wrCls = "wr-l";
-        }
-    }
     const wlStr   = soloQ ? `${soloQ.wins}W ${soloQ.losses}L` : "";
 
     podium.insertAdjacentHTML("beforeend", `
@@ -493,12 +443,12 @@ function renderPodium(top3) {
         </div>
         <div class="p-name">${p.gameName}</div>
         <div class="p-tag">#${p.tagLine}</div>
-        ${d ? `
+        ${soloQ ? `
           <div class="p-rank ${tierCls}">${tierStr}</div>
           <div class="p-lp">${lpStr}</div>
-          <div class="p-wr ${wrCls}">${wrStr}</div>
+          <div class="p-wr ${wrClass(wr)}">${wr !== null ? wr+"% WR" : ""}</div>
           <div class="p-wl">${wlStr}</div>
-        ` : `<div class="skel" style="height:20px;width:80%;margin:6px auto"></div>`}
+        ` : `<div class="p-rank t-unranked">Unranked</div>`}
         <div class="p-ingame ${inGame?"live":"idle"}">${inGame?"● IN GAME":"· offline"}</div>
       </div>`);
   });
@@ -511,24 +461,12 @@ function buildListRow(p, pos) {
       <div style="font-family:'DM Mono',monospace;font-size:.8rem;color:var(--red)">✕ ${p.gameName}#${p.tagLine}</div>
     </div>`;
 
-  const d      = p.data;
-  const soloQ  = d?.rankData?.find(r => r.queueType === "RANKED_SOLO_5x5");
-  const inGame = d?.inGame;
+  const soloQ   = p.rankData?.find(r => r.queueType === "RANKED_SOLO_5x5");
+  const inGame  = p.inGame;
   const tierCls = soloQ ? "t-"+soloQ.tier.toLowerCase() : "t-unranked";
   const tierStr = soloQ ? `${soloQ.tier} ${soloQ.rank}` : "Unranked";
   const lpStr   = soloQ ? `${soloQ.leaguePoints} LP` : "";
   const wr      = soloQ ? Math.round(soloQ.wins/(soloQ.wins+soloQ.losses)*100) : null;
-  const wrStr   = wr !== null ? `${wr}% WR` : "";
-  let wrCls = "";
-  if (wr !== null) {
-    if (wr >= 49 && wr <= 52) {
-        wrCls = "wr-mid";
-    } else if (wr > 52) {
-        wrCls = "wr-w";
-    } else {
-        wrCls = "wr-l";
-    }
-  }
   const wlStr   = soloQ ? `${soloQ.wins}W ${soloQ.losses}L` : "";
 
   return `
@@ -545,38 +483,11 @@ function buildListRow(p, pos) {
       <div class="list-rank-block">
         <div class="list-tier ${tierCls}">${tierStr}</div>
         <div class="list-lp">${lpStr}</div>
-        <div class="list-wr ${wrCls}">${wrStr}</div>
+        <div class="list-wr ${wrClass(wr)}">${wr !== null ? wr+"% WR" : ""}</div>
         <div class="list-wl">${wlStr}</div>
       </div>
       <div class="list-ingame ${inGame?"live":"idle"}">${inGame?"● IN GAME":"· offline"}</div>
     </div>`;
-}
-
-// ── COUNTDOWN ─────────────────────────────────────────────────
-function startCountdown() {
-  clearInterval(cdTimer);
-  cdTimer = setInterval(async () => {
-    cdSecs--;
-    const h = Math.floor(cdSecs/3600);
-    const m = Math.floor((cdSecs%3600)/60);
-    const s = String(cdSecs%60).padStart(2,"0");
-    document.getElementById("countdown").textContent =
-      h > 0 ? `refresh en ${h}h ${m}m` : `refresh en ${m}:${s}`;
-    if (cdSecs <= 0) await refreshAll();
-  }, 1000);
-}
-function resetCountdown() { cdSecs = 3600; startCountdown(); }
-
-// ── HELPERS ───────────────────────────────────────────────────
-function playerKey(p) { return `${p.name.toLowerCase()}#${p.tag.toLowerCase()}`; }
-function enc(s) { return encodeURIComponent(s); }
-
-async function api(path) {
-  const [p, qs] = path.split("?");
-  const url = API + `?path=${enc(p)}` + (qs ? `&qs=${enc(qs)}` : "");
-  const r = await fetch(url);
-  if (!r.ok) throw new Error(`HTTP ${r.status}`);
-  return r.json();
 }
 
 function toast(msg, err=false) {
