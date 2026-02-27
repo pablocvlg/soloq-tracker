@@ -84,13 +84,16 @@ header {
 }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
 #countdown { font-family: 'DM Mono', monospace; font-size: .68rem; color: var(--muted); }
-.btn-refresh {
+
+.btn-refresh, .btn-matches {
   background: none; border: 1px solid var(--border);
   color: var(--muted); font-family: 'DM Mono', monospace;
   font-size: .72rem; padding: 7px 16px; border-radius: 6px;
   cursor: pointer; transition: all .2s; margin-top: 4px;
 }
-.btn-refresh:hover { border-color: var(--gold); color: var(--gold); }
+.btn-refresh:hover  { border-color: var(--gold); color: var(--gold); }
+.btn-matches:hover  { border-color: var(--blue); color: var(--blue); }
+.btn-refresh:disabled, .btn-matches:disabled { opacity: .35; cursor: not-allowed; }
 
 /* ── STATUS BAR ── */
 #status-bar {
@@ -132,97 +135,66 @@ header {
 }
 @keyframes shimmer-bar { to{left:160%} }
 
-/* 1st */
 .podium-card.p1 {
-  width: 300px;
+  width: 300px; order: 2;
   background: linear-gradient(160deg, #1a1408 0%, #0f0d08 60%, #0a0c10 100%);
   border: 1px solid rgba(200,155,60,.5);
   box-shadow: 0 0 40px rgba(200,155,60,.12), 0 0 80px rgba(200,155,60,.05);
-  order: 2;
 }
 .podium-card.p1::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
   background: linear-gradient(90deg, transparent, var(--gold), var(--gold2), var(--gold), transparent);
 }
-
-/* 2nd */
 .podium-card.p2 {
-  width: 250px;
-  margin-bottom: 48px;
+  width: 250px; order: 1; margin-top: 48px;
   background: linear-gradient(160deg, #111518 0%, #0d1117 100%);
   border: 1px solid rgba(154,176,192,.35);
   box-shadow: 0 0 30px rgba(154,176,192,.07);
-  order: 1;
 }
 .podium-card.p2::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
   background: linear-gradient(90deg, transparent, var(--silver), var(--silver2), var(--silver), transparent);
 }
-
-/* 3rd */
 .podium-card.p3 {
-  width: 250px;
-  margin-bottom: 48px;
+  width: 250px; order: 3; margin-top: 48px;
   background: linear-gradient(160deg, #130e08 0%, #0d1117 100%);
   border: 1px solid rgba(205,127,50,.35);
   box-shadow: 0 0 30px rgba(205,127,50,.07);
-  order: 3;
 }
 .podium-card.p3::before {
-  content: '';
-  position: absolute; top: 0; left: 0; right: 0; height: 2px;
+  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
   background: linear-gradient(90deg, transparent, var(--bronze), var(--bronze2), var(--bronze), transparent);
 }
 
 .medal {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: .75rem; letter-spacing: 2px;
-  padding: 3px 10px; border-radius: 20px;
-  margin-bottom: 16px;
+  font-family: 'Bebas Neue', sans-serif; font-size: .75rem; letter-spacing: 2px;
+  padding: 3px 10px; border-radius: 20px; margin-bottom: 16px;
 }
 .p1 .medal { color: var(--gold2);   background: rgba(200,155,60,.15); border: 1px solid rgba(200,155,60,.3); }
 .p2 .medal { color: var(--silver2); background: rgba(154,176,192,.1); border: 1px solid rgba(154,176,192,.25); }
 .p3 .medal { color: var(--bronze2); background: rgba(205,127,50,.1);  border: 1px solid rgba(205,127,50,.25); }
 
-.p-avatar-ring {
-  border-radius: 50%; padding: 3px; position: relative; margin-bottom: 14px;
-}
+.p-avatar-ring { border-radius: 50%; padding: 3px; position: relative; margin-bottom: 14px; }
 .p1 .p-avatar-ring { background: linear-gradient(135deg, var(--gold2), var(--gold), transparent); width: 88px; height: 88px; }
 .p2 .p-avatar-ring { background: linear-gradient(135deg, var(--silver2), var(--silver), transparent); width: 72px; height: 72px; }
 .p3 .p-avatar-ring { background: linear-gradient(135deg, var(--bronze2), var(--bronze), transparent); width: 72px; height: 72px; }
-
-.p-avatar {
-  width: 100%; height: 100%; border-radius: 50%;
-  object-fit: cover; display: block; background: var(--bg3);
-}
+.p-avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; background: var(--bg3); }
 .p-lvl {
   position: absolute; bottom: -3px; left: 50%; transform: translateX(-50%);
   background: var(--bg3); border: 1px solid var(--border);
   font-family: 'DM Mono', monospace; font-size: .58rem;
   padding: 1px 6px; border-radius: 3px; color: var(--muted); white-space: nowrap;
 }
-
-.p-name {
-  font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; line-height: 1;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%;
-}
+.p-name { font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
 .p1 .p-name { font-size: 1.5rem; color: var(--gold2); }
 .p2 .p-name, .p3 .p-name { font-size: 1.2rem; color: var(--text); }
 .p-tag { font-family: 'DM Mono', monospace; font-size: .65rem; color: var(--muted); margin-top: 3px; margin-bottom: 14px; }
-
 .p-rank { font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; line-height: 1; margin-bottom: 4px; }
 .p1 .p-rank { font-size: 1.6rem; }
 .p2 .p-rank, .p3 .p-rank { font-size: 1.3rem; }
 .p-lp { font-family: 'DM Mono', monospace; font-size: .65rem; color: var(--muted); margin-bottom: 4px; }
 .p-wr { font-family: 'DM Mono', monospace; font-size: .65rem; }
-
-.p-ingame {
-  margin-top: 12px;
-  font-family: 'DM Mono', monospace; font-size: .6rem;
-  padding: 3px 9px; border-radius: 20px;
-}
+.p-ingame { margin-top: 12px; font-family: 'DM Mono', monospace; font-size: .6rem; padding: 3px 9px; border-radius: 20px; }
 .p-ingame.live { background: rgba(74,144,217,.12); color: var(--blue); border: 1px solid rgba(74,144,217,.4); }
 .p-ingame.idle { background: var(--bg3); color: var(--muted); border: 1px solid var(--border); }
 
@@ -236,6 +208,10 @@ header {
 .p-match-kda.w { color: var(--green); }
 .p-match-kda.l { color: var(--red); }
 
+/* ── NEW MATCH GLOW ── */
+.p-match-strip.is-new  { box-shadow: 0 0 5px var(--green); }
+.list-match-strip.is-new { box-shadow: 0 0 5px var(--green); }
+
 /* ════════════════════════════════════
    LIST
 ════════════════════════════════════ */
@@ -247,35 +223,22 @@ header {
 #list { display: flex; flex-direction: column; gap: 10px; }
 
 .list-row {
-  background: var(--bg2);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 14px 18px;
-  display: flex; align-items: center; gap: 16px;
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 12px;
+  padding: 14px 18px; display: flex; align-items: center; gap: 16px;
   transition: border-color .25s, transform .2s;
-  animation: slideUp .4s ease both;
-  position: relative; overflow: hidden;
+  animation: slideUp .4s ease both; position: relative; overflow: hidden;
 }
 @keyframes slideUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
 .list-row:hover { border-color: rgba(200,155,60,.3); transform: translateX(3px); }
 .list-row.in-game { border-color: rgba(74,144,217,.4); }
 .list-row.in-game::after {
-  content: '';
-  position: absolute; top: 0; left: -100%; width: 60%; height: 2px;
+  content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 2px;
   background: linear-gradient(90deg, transparent, var(--blue), transparent);
   animation: shimmer-bar 2.5s linear infinite;
 }
-
-.list-pos {
-  font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem;
-  color: var(--muted); letter-spacing: 1px;
-  width: 28px; text-align: center; flex-shrink: 0;
-}
+.list-pos { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: var(--muted); letter-spacing: 1px; width: 28px; text-align: center; flex-shrink: 0; }
 .list-avatar-wrap { position: relative; flex-shrink: 0; }
-.list-avatar {
-  width: 42px; height: 42px; border-radius: 50%;
-  object-fit: cover; border: 1px solid var(--border); background: var(--bg3);
-}
+.list-avatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border); background: var(--bg3); }
 .list-lvl {
   position: absolute; bottom: -3px; left: 50%; transform: translateX(-50%);
   background: var(--bg3); border: 1px solid var(--border);
@@ -285,23 +248,17 @@ header {
 .list-name-block { min-width: 0; flex: 1; }
 .list-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 1px; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .list-tag  { font-family: 'DM Mono', monospace; font-size: .62rem; color: var(--muted); }
-
 .list-rank-block { text-align: right; flex-shrink: 0; }
 .list-tier { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: .5px; }
 .list-lp   { font-family: 'DM Mono', monospace; font-size: .62rem; color: var(--muted); }
 .list-wr   { font-family: 'DM Mono', monospace; font-size: .62rem; }
-
 .list-matches { display: flex; gap: 4px; flex-shrink: 0; }
 .list-match-pip { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 32px; }
 .list-match-strip { width: 100%; height: 3px; border-radius: 2px; }
 .list-match-strip.w { background: var(--green); }
 .list-match-strip.l { background: var(--red); }
 .list-match-champ { font-family: 'DM Mono', monospace; font-size: .48rem; color: var(--muted); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
-
-.list-ingame {
-  font-family: 'DM Mono', monospace; font-size: .58rem;
-  padding: 3px 8px; border-radius: 20px; flex-shrink: 0;
-}
+.list-ingame { font-family: 'DM Mono', monospace; font-size: .58rem; padding: 3px 8px; border-radius: 20px; flex-shrink: 0; }
 .list-ingame.live { background: rgba(74,144,217,.12); color: var(--blue); border: 1px solid rgba(74,144,217,.4); }
 .list-ingame.idle { background: var(--bg3); color: var(--muted); border: 1px solid var(--border); }
 
@@ -322,9 +279,7 @@ header {
 
 .skel {
   background: linear-gradient(90deg, var(--bg2) 25%, var(--bg3) 50%, var(--bg2) 75%);
-  background-size: 200% 100%;
-  animation: skimmer 1.5s infinite;
-  border-radius: 6px;
+  background-size: 200% 100%; animation: skimmer 1.5s infinite; border-radius: 6px;
 }
 @keyframes skimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
@@ -340,7 +295,7 @@ header {
 
 @media (max-width: 700px) {
   #podium { flex-direction: column; align-items: center; }
-  .podium-card { width: 90% !important; max-width: 300px; order: unset !important; margin-bottom: 0 !important; }
+  .podium-card { width: 90% !important; max-width: 300px; order: unset !important; margin-top: 0 !important; }
   .list-matches { display: none; }
 }
 </style>
@@ -356,7 +311,8 @@ header {
     <div class="header-meta">
       <div class="live-dot"><div class="dot"></div>En directo</div>
       <div id="countdown">—</div>
-      <button class="btn-refresh" onclick="refreshAll()">↻ Actualizar</button>
+      <button class="btn-refresh" id="btn-refresh" onclick="manualRefresh()">↻ Actualizar</button>
+      <button class="btn-matches" id="btn-matches" onclick="loadNewMatches()">↓ Cargar partidas</button>
     </div>
   </header>
 
@@ -366,10 +322,8 @@ header {
     <div class="status-line"></div>
   </div>
 
-  <div class="list-label" id="list-label" style="display:none">CLASIFICACIÓN</div>
-
+  <div class="list-label" id="list-label" style="display:block">CLASIFICACIÓN</div>
   <div id="podium"></div>
-
   <div id="list"></div>
 
 </div>
@@ -387,13 +341,29 @@ const PLAYERS = [
   { name: "comehigados",  tag: "EUW" },
 ];
 
-const API       = "/api/riot";
-const DDRAGON_V = "15.1.1";
+const API        = "/api/riot";
+const DDRAGON_V  = "15.1.1";
+const MAX_MATCHES = 3;          // partidas que se muestran por jugador
+const DELAY_MS   = 200;         // ms entre llamadas para no petar el rate limit
 const ICON = id => `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_V}/img/profileicon/${id}.png`;
 // ════════════════════════════════════════════════════════════════
 
-let state = {};
-let cdSecs = 300, cdTimer = null;
+// ── CACHE en localStorage ─────────────────────────────────────
+// matchCache:  { matchId → { win, champ, k, d, a } }
+// knownIds:    { puuid  → [matchId, ...] }          (últimos conocidos)
+function loadCache(key) {
+  try { return JSON.parse(localStorage.getItem(key) || "{}"); } catch { return {}; }
+}
+function saveCache(key, data) {
+  try { localStorage.setItem(key, JSON.stringify(data)); } catch {}
+}
+
+let matchCache = loadCache("awa_matches_v1");   // detalles de partida
+let knownIds   = loadCache("awa_known_ids_v1"); // matchIds que ya tenemos
+
+// ── STATE ─────────────────────────────────────────────────────
+let state = {};   // playerKey → { gameName, tagLine, puuid, profileIconId, summonerLevel, data, lastUpdate }
+let cdSecs = 3600, cdTimer = null;
 
 const TIER_ORDER = { IRON:0,BRONZE:1,SILVER:2,GOLD:3,PLATINUM:4,EMERALD:5,DIAMOND:6,MASTER:7,GRANDMASTER:8,CHALLENGER:9 };
 const RANK_ORDER = { IV:0,III:1,II:2,I:3 };
@@ -404,19 +374,23 @@ function rankScore(rankData) {
   return (TIER_ORDER[s.tier]??-1)*10000 + (RANK_ORDER[s.rank]??0)*1000 + (s.leaguePoints||0);
 }
 
+// ── INIT ──────────────────────────────────────────────────────
 (async function init() {
   renderLoadingState();
   startCountdown();
   await fetchBaseData();
-  await refreshAll();
+  await autoRefresh();   // primera carga completa (rank + live + matchIds, no detalles)
 })();
 
+// ── BASE DATA: account + summoner (solo al cargar) ────────────
 async function fetchBaseData() {
-  await Promise.all(PLAYERS.map(async p => {
+  for (const p of PLAYERS) {
     const key = playerKey(p);
     try {
       const acc = await api(`/account/${enc(p.name)}/${enc(p.tag)}`);
+      await sleep(DELAY_MS);
       const sum = await api(`/summoner/${acc.puuid}`);
+      await sleep(DELAY_MS);
       state[key] = {
         gameName: acc.gameName, tagLine: acc.tagLine,
         puuid: acc.puuid,
@@ -427,41 +401,116 @@ async function fetchBaseData() {
     } catch(e) {
       state[key] = { gameName: p.name, tagLine: p.tag, error: true };
     }
-  }));
+  }
 }
 
-async function refreshAll() {
-  await Promise.all(PLAYERS.map(p => refreshPlayer(playerKey(p))));
+// ── AUTO REFRESH (cada hora): rank + live + matchIds ──────────
+// NO descarga detalles de partidas nuevas automáticamente
+async function autoRefresh() {
+  setButtons(true);
+  for (const p of PLAYERS) {
+    await refreshPlayerLight(playerKey(p));
+    await sleep(DELAY_MS);
+  }
   document.getElementById("last-updated").textContent =
     "última actualización: " + new Date().toLocaleTimeString("es-ES");
   resetCountdown();
   renderEverything();
+  setButtons(false);
 }
 
-async function refreshPlayer(key) {
+// ── MANUAL REFRESH (botón): igual que autoRefresh ─────────────
+async function manualRefresh() {
+  toast("Actualizando...");
+  await autoRefresh();
+  toast("Actualizado ✓");
+}
+
+// ── LIGHT REFRESH: rank + live + matchIds (sin detalles) ──────
+async function refreshPlayerLight(key) {
   const p = state[key];
   if (!p || p.error) return;
   try {
     const [rankData, liveData, matchIds] = await Promise.all([
       api(`/rank/${p.puuid}`),
       api(`/live/${p.puuid}`),
-      api(`/matches/${p.puuid}`)
+      api(`/matches/${p.puuid}?count=${MAX_MATCHES}`)
     ]);
-    const details = await Promise.all(
-      matchIds.slice(0,5).map(id => api(`/match/${id}`).catch(() => null))
-    );
-    const recentMatches = details.filter(Boolean).map(m => {
-      const me = m.info.participants.find(x => x.puuid === p.puuid);
-      if (!me) return null;
-      return { win: me.win, champ: me.championName, k: me.kills, d: me.deaths, a: me.assists };
-    }).filter(Boolean);
 
-    state[key] = { ...p, data: { rankData, inGame: !!liveData.gameId, recentMatches }, lastUpdate: Date.now() };
+    // Guarda los matchIds conocidos para este jugador
+    knownIds[p.puuid] = matchIds;
+    saveCache("awa_known_ids_v1", knownIds);
+
+    // Reconstruye recentMatches desde cache (solo los que ya tenemos descargados)
+    const recentMatches = matchIds
+      .slice(0, MAX_MATCHES)
+      .map(id => matchCache[id] || null)
+      .filter(Boolean);
+
+    state[key] = {
+      ...p,
+      data: { rankData, inGame: !!liveData.gameId, recentMatches, matchIds },
+      lastUpdate: Date.now()
+    };
   } catch(e) {
-    console.warn("Error refresh", key, e);
+    console.warn("Error refresh light", key, e);
   }
 }
 
+// ── LOAD NEW MATCHES (botón): descarga detalles de partidas nuevas ──
+async function loadNewMatches() {
+  setButtons(true);
+  toast("Buscando partidas nuevas...");
+
+  let downloaded = 0;
+
+  for (const p of PLAYERS) {
+    const key  = playerKey(p);
+    const ps   = state[key];
+    if (!ps || ps.error || !ps.data?.matchIds) continue;
+
+    const newIds = ps.data.matchIds.filter(id => !matchCache[id]);
+    if (newIds.length === 0) continue;
+
+    for (const id of newIds) {
+      try {
+        const m = await api(`/match/${id}`);
+        const me = m.info.participants.find(x => x.puuid === ps.puuid);
+        if (me) {
+          matchCache[id] = {
+            win: me.win, champ: me.championName,
+            k: me.kills, d: me.deaths, a: me.assists
+          };
+          downloaded++;
+        }
+        await sleep(DELAY_MS);
+      } catch(e) {
+        console.warn("Error fetching match", id, e);
+        await sleep(500); // si falla, espera más antes del siguiente
+      }
+    }
+
+    // Actualiza el state con las nuevas partidas
+    const recentMatches = ps.data.matchIds
+      .slice(0, MAX_MATCHES)
+      .map(id => matchCache[id] || null)
+      .filter(Boolean);
+
+    state[key] = { ...ps, data: { ...ps.data, recentMatches } };
+  }
+
+  saveCache("awa_matches_v1", matchCache);
+  renderEverything();
+  setButtons(false);
+
+  if (downloaded > 0) {
+    toast(`${downloaded} partida${downloaded>1?"s":""} nueva${downloaded>1?"s":""} cargada${downloaded>1?"s":""} ✓`);
+  } else {
+    toast("Sin partidas nuevas");
+  }
+}
+
+// ── RENDER ────────────────────────────────────────────────────
 function sortedPlayers() {
   return PLAYERS
     .map(p => state[playerKey(p)] || { gameName: p.name, tagLine: p.tag, error: true })
@@ -472,7 +521,7 @@ function renderEverything() {
   const sorted = sortedPlayers();
   renderPodium(sorted.slice(0,3));
   const rest = sorted.slice(3);
-  const listEl = document.getElementById("list");
+  const listEl    = document.getElementById("list");
   const listLabel = document.getElementById("list-label");
   listEl.innerHTML = "";
   if (rest.length > 0) {
@@ -512,53 +561,65 @@ function renderLoadingState() {
 function renderPodium(top3) {
   const podium = document.getElementById("podium");
   podium.innerHTML = "";
-
-  // Visual order: 2nd (left), 1st (center), 3rd (right)
   const slots = [
     { p: top3[1], cls: "p2", label: "2º", delay: ".1s" },
     { p: top3[0], cls: "p1", label: "1º", delay: "0s"  },
     { p: top3[2], cls: "p3", label: "3º", delay: ".2s" },
   ];
-
   slots.forEach(({ p, cls, label, delay }) => {
     if (!p) return;
-    const d      = p.data;
-    const soloQ  = d?.rankData?.find(r => r.queueType === "RANKED_SOLO_5x5");
-    const inGame = d?.inGame;
-    const tierCls = soloQ ? "t-"+soloQ.tier.toLowerCase() : "t-unranked";
-    const tierStr = soloQ ? `${soloQ.tier} ${soloQ.rank}` : "Unranked";
-    const lpStr   = soloQ ? `${soloQ.leaguePoints} LP` : "—";
-    const wr      = soloQ ? Math.round(soloQ.wins/(soloQ.wins+soloQ.losses)*100) : null;
-    const wrStr   = wr !== null ? `${wr}% WR` : "";
-    const wrCls   = wr !== null ? (wr>=50?"wr-w":"wr-l") : "";
-
-    const matchesHTML = d?.recentMatches?.length
-      ? `<div class="p-matches">${d.recentMatches.map(m=>`
-          <div class="p-match-cell">
-            <div class="p-match-strip ${m.win?"w":"l"}"></div>
-            <div class="p-match-champ">${m.champ}</div>
-            <div class="p-match-kda ${m.win?"w":"l"}">${m.k}/${m.d}/${m.a}</div>
-          </div>`).join("")}</div>`
-      : "";
-
-    podium.insertAdjacentHTML("beforeend", `
-      <div class="podium-card ${cls}${inGame?" in-game":""}" style="animation-delay:${delay}">
-        <div class="medal">${label}</div>
-        <div class="p-avatar-ring">
-          <img class="p-avatar" src="${ICON(p.profileIconId||29)}" onerror="this.src='${ICON(29)}'"/>
-          <div class="p-lvl">${p.summonerLevel||"?"}</div>
-        </div>
-        <div class="p-name">${p.gameName}</div>
-        <div class="p-tag">#${p.tagLine}</div>
-        ${d ? `
-          <div class="p-rank ${tierCls}">${tierStr}</div>
-          <div class="p-lp">${lpStr}</div>
-          <div class="p-wr ${wrCls}">${wrStr}</div>
-        ` : `<div class="skel" style="height:20px;width:80%;margin:6px auto"></div>`}
-        <div class="p-ingame ${inGame?"live":"idle"}">${inGame?"● IN GAME":"· offline"}</div>
-        ${matchesHTML}
-      </div>`);
+    podium.insertAdjacentHTML("beforeend", buildPodiumCard(p, cls, label, delay));
   });
+}
+
+function buildPodiumCard(p, cls, label, delay) {
+  const d      = p.data;
+  const soloQ  = d?.rankData?.find(r => r.queueType === "RANKED_SOLO_5x5");
+  const inGame = d?.inGame;
+  const tierCls = soloQ ? "t-"+soloQ.tier.toLowerCase() : "t-unranked";
+  const tierStr = soloQ ? `${soloQ.tier} ${soloQ.rank}` : "Unranked";
+  const lpStr   = soloQ ? `${soloQ.leaguePoints} LP` : "—";
+  const wr      = soloQ ? Math.round(soloQ.wins/(soloQ.wins+soloQ.losses)*100) : null;
+  const wrStr   = wr !== null ? `${wr}% WR` : "";
+  const wrCls   = wr !== null ? (wr>=50?"wr-w":"wr-l") : "";
+  const matchesHTML = buildPodiumMatches(p, d?.matchIds);
+
+  return `
+    <div class="podium-card ${cls}${inGame?" in-game":""}" style="animation-delay:${delay}">
+      <div class="medal">${label}</div>
+      <div class="p-avatar-ring">
+        <img class="p-avatar" src="${ICON(p.profileIconId||29)}" onerror="this.src='${ICON(29)}'"/>
+        <div class="p-lvl">${p.summonerLevel||"?"}</div>
+      </div>
+      <div class="p-name">${p.gameName}</div>
+      <div class="p-tag">#${p.tagLine}</div>
+      ${d ? `
+        <div class="p-rank ${tierCls}">${tierStr}</div>
+        <div class="p-lp">${lpStr}</div>
+        <div class="p-wr ${wrCls}">${wrStr}</div>
+      ` : `<div class="skel" style="height:20px;width:80%;margin:6px auto"></div>`}
+      <div class="p-ingame ${inGame?"live":"idle"}">${inGame?"● IN GAME":"· offline"}</div>
+      ${matchesHTML}
+    </div>`;
+}
+
+function buildPodiumMatches(p, matchIds) {
+  const matches = p.data?.recentMatches;
+  if (!matches?.length) {
+    // Si hay matchIds pero sin detalles, muestra placeholder
+    if (matchIds?.length) return `<div style="font-family:'DM Mono',monospace;font-size:.55rem;color:var(--muted);margin-top:10px">↓ cargar partidas</div>`;
+    return "";
+  }
+  const cells = matches.slice(0, MAX_MATCHES).map((m, i) => {
+    const isNew = matchIds && matchIds[i] && !wasKnownBefore(matchIds[i], p.puuid);
+    return `
+      <div class="p-match-cell">
+        <div class="p-match-strip ${m.win?"w":"l"}${isNew?" is-new":""}"></div>
+        <div class="p-match-champ">${m.champ}</div>
+        <div class="p-match-kda ${m.win?"w":"l"}">${m.k}/${m.d}/${m.a}</div>
+      </div>`;
+  }).join("");
+  return `<div class="p-matches">${cells}</div>`;
 }
 
 function buildListRow(p, pos) {
@@ -578,11 +639,14 @@ function buildListRow(p, pos) {
   const wrStr   = wr !== null ? `${wr}% WR` : "";
   const wrCls   = wr !== null ? (wr>=50?"wr-w":"wr-l") : "";
 
-  const matchesHTML = d?.recentMatches?.slice(0,5).map(m=>`
-    <div class="list-match-pip">
-      <div class="list-match-strip ${m.win?"w":"l"}"></div>
-      <div class="list-match-champ">${m.champ}</div>
-    </div>`).join("") || "";
+  const matchesHTML = d?.recentMatches?.slice(0, MAX_MATCHES).map((m, i) => {
+    const isNew = d.matchIds && d.matchIds[i] && !wasKnownBefore(d.matchIds[i], p.puuid);
+    return `
+      <div class="list-match-pip">
+        <div class="list-match-strip ${m.win?"w":"l"}${isNew?" is-new":""}"></div>
+        <div class="list-match-champ">${m.champ}</div>
+      </div>`;
+  }).join("") || "";
 
   return `
     <div class="list-row${inGame?" in-game":""}">
@@ -605,20 +669,38 @@ function buildListRow(p, pos) {
     </div>`;
 }
 
+// ── COUNTDOWN ─────────────────────────────────────────────────
 function startCountdown() {
   clearInterval(cdTimer);
   cdTimer = setInterval(async () => {
     cdSecs--;
-    const m = Math.floor(cdSecs/60);
+    const h = Math.floor(cdSecs/3600);
+    const m = Math.floor((cdSecs%3600)/60);
     const s = String(cdSecs%60).padStart(2,"0");
-    document.getElementById("countdown").textContent = `refresh en ${m}:${s}`;
-    if (cdSecs <= 0) await refreshAll();
+    document.getElementById("countdown").textContent =
+      h > 0 ? `refresh en ${h}h ${m}m` : `refresh en ${m}:${s}`;
+    if (cdSecs <= 0) await autoRefresh();
   }, 1000);
 }
-function resetCountdown() { cdSecs = 300; startCountdown(); }
+function resetCountdown() { cdSecs = 3600; startCountdown(); }
 
+// ── HELPERS ───────────────────────────────────────────────────
 function playerKey(p) { return `${p.name.toLowerCase()}#${p.tag.toLowerCase()}`; }
 function enc(s) { return encodeURIComponent(s); }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+function setButtons(disabled) {
+  document.getElementById("btn-refresh").disabled  = disabled;
+  document.getElementById("btn-matches").disabled  = disabled;
+}
+
+// Para detectar si una partida es nueva (no estaba en la sesión anterior)
+// Simplificado: si no estaba en el cache antes de esta sesión, es nueva
+const _sessionStart = Date.now();
+function wasKnownBefore(matchId) {
+  // Si está en el cache, lo teníamos de antes
+  return !!matchCache[matchId];
+}
 
 async function api(path) {
   const [p, qs] = path.split("?");
@@ -633,7 +715,7 @@ function toast(msg, err=false) {
   t.textContent = msg;
   t.className = "show"+(err?" err":"");
   clearTimeout(t._t);
-  t._t = setTimeout(()=>t.className="", 3000);
+  t._t = setTimeout(()=>t.className="", 3500);
 }
 </script>
 </body>
