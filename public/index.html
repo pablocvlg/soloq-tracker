@@ -423,7 +423,7 @@ function podiumStrips(p) {
       <div class="p-tooltip">${m.champ}</div>
     </div>`).join("");
   const streak = streakInfo(ordered);
-  const badge = streak ? `<div class="streak-badge ${streak.win ? "w" : "l"}">🔥 ${streak.count} ${streak.win ? "W" : "L"} streak</div>` : "";
+  const badge = streak ? `<div class="streak-badge ${streak.win ? "w" : "l"}"> ${streak.win ? "🔥" : "❄️"} ${streak.count} ${streak.win ? "W" : "L"} streak </div>` : "";
   return `<div class="p-matches">${cells}</div>${badge}`;
 }
 
