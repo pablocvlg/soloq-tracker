@@ -58,7 +58,7 @@ body::after {
 header {
   display: flex; align-items: flex-end; justify-content: space-between;
   padding: 36px 0 24px;
-  border-bottom: 1px solid var(--border); margin-bottom: 56px;
+  border-bottom: 1px solid var(--border); margin-bottom: 0;
 }
 .logo-block { display: flex; flex-direction: column; gap: 4px; }
 .logo-eyebrow {
@@ -95,7 +95,7 @@ header {
 /* ── STATUS BAR ── */
 #status-bar {
   font-family: 'DM Mono', monospace; font-size: .68rem;
-  color: var(--muted); margin-bottom: 20px;
+  color: var(--muted); margin-bottom: 0;
   display: flex; align-items: center; gap: 10px;
 }
 .status-line { flex: 1; height: 1px; background: var(--border); }
@@ -108,7 +108,7 @@ header {
   align-items: flex-start;
   justify-content: center;
   gap: 16px;
-  margin-bottom: 64px;
+  margin-bottom: 0;
 }
 
 .podium-card {
@@ -366,9 +366,10 @@ header {
     <div class="status-line"></div>
   </div>
 
+  <div class="list-label" id="list-label" style="display:none">CLASIFICACIÓN</div>
+
   <div id="podium"></div>
 
-  <div class="list-label" id="list-label" style="display:none">CLASIFICACIÓN</div>
   <div id="list"></div>
 
 </div>
