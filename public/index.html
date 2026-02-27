@@ -26,15 +26,11 @@
   --muted:   #58677a;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  background: var(--bg); color: var(--text);
-  font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow-x: hidden;
-}
+body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; overflow-x: hidden; }
 body::before {
   content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-  background:
-    radial-gradient(ellipse 70% 35% at 50% -5%, rgba(74,144,217,.1) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 25% at 85% 90%, rgba(200,155,60,.07) 0%, transparent 55%);
+  background: radial-gradient(ellipse 70% 35% at 50% -5%, rgba(74,144,217,.1) 0%, transparent 60%),
+              radial-gradient(ellipse 50% 25% at 85% 90%, rgba(200,155,60,.07) 0%, transparent 55%);
 }
 body::after {
   content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: .025;
@@ -43,7 +39,6 @@ body::after {
 }
 .wrapper { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 28px 100px; }
 
-/* HEADER */
 header { display: flex; align-items: flex-end; justify-content: space-between; padding: 36px 0 24px; }
 .logo-block { display: flex; flex-direction: column; gap: 4px; }
 .logo-eyebrow { font-family: 'DM Mono', monospace; font-size: .65rem; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); opacity: .8; }
@@ -57,8 +52,7 @@ header { display: flex; align-items: flex-end; justify-content: space-between; p
 .btn-refresh:hover { border-color: var(--gold); color: var(--gold); }
 .btn-refresh:disabled { opacity: .35; cursor: not-allowed; }
 
-/* STATUS */
-#status-bar { font-family: 'DM Mono', monospace; font-size: .68rem; color: var(--muted); margin-bottom: 0; display: flex; align-items: center; gap: 10px; }
+#status-bar { font-family: 'DM Mono', monospace; font-size: .68rem; color: var(--muted); display: flex; align-items: center; gap: 10px; margin-bottom: 0; }
 .status-line { flex: 1; height: 1px; background: var(--border); }
 
 /* PODIUM */
@@ -66,106 +60,99 @@ header { display: flex; align-items: flex-end; justify-content: space-between; p
 .podium-card { border-radius: 16px; padding: 24px 20px 20px; position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; text-align: center; transition: transform .25s; animation: riseUp .6s ease both; flex-shrink: 0; }
 .podium-card:hover { transform: translateY(-4px); }
 @keyframes riseUp { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
-.podium-card.in-game::after { content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 2px; background: linear-gradient(90deg, transparent, var(--blue), transparent); animation: shimmer-bar 2.5s linear infinite; }
-@keyframes shimmer-bar { to{left:160%} }
-.podium-card.p1 { width: 300px; order: 2; background: linear-gradient(160deg, #1a1408 0%, #0f0d08 60%, #0a0c10 100%); border: 1px solid rgba(200,155,60,.5); box-shadow: 0 0 40px rgba(200,155,60,.12), 0 0 80px rgba(200,155,60,.05); }
-.podium-card.p1::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), var(--gold2), var(--gold), transparent); }
-.podium-card.p2 { width: 260px; order: 1; margin-top: 48px; margin-bottom: 48px; background: linear-gradient(160deg, #111518 0%, #0d1117 100%); border: 1px solid rgba(154,176,192,.35); box-shadow: 0 0 30px rgba(154,176,192,.07); }
-.podium-card.p2::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--silver), var(--silver2), var(--silver), transparent); }
-.podium-card.p3 { width: 260px; order: 3; margin-top: 48px; margin-bottom: 48px; background: linear-gradient(160deg, #130e08 0%, #0d1117 100%); border: 1px solid rgba(205,127,50,.35); box-shadow: 0 0 30px rgba(205,127,50,.07); }
-.podium-card.p3::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--bronze), var(--bronze2), var(--bronze), transparent); }
-.medal { font-family: 'Bebas Neue', sans-serif; font-size: .75rem; letter-spacing: 2px; padding: 3px 10px; border-radius: 20px; margin-bottom: 16px; }
-.p1 .medal { color: var(--gold2);   background: rgba(200,155,60,.15); border: 1px solid rgba(200,155,60,.3); }
-.p2 .medal { color: var(--silver2); background: rgba(154,176,192,.1);  border: 1px solid rgba(154,176,192,.25); }
-.p3 .medal { color: var(--bronze2); background: rgba(205,127,50,.1);   border: 1px solid rgba(205,127,50,.25); }
-.p-avatar-ring { border-radius: 50%; padding: 3px; position: relative; margin-bottom: 14px; }
-.p1 .p-avatar-ring { background: linear-gradient(135deg, var(--gold2), var(--gold), transparent); width: 88px; height: 88px; }
-.p2 .p-avatar-ring, .p3 .p-avatar-ring { background: linear-gradient(135deg, var(--silver2), var(--silver), transparent); width: 72px; height: 72px; }
-.p3 .p-avatar-ring { background: linear-gradient(135deg, var(--bronze2), var(--bronze), transparent); }
-.p-avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; background: var(--bg3); }
-.p-lvl { position: absolute; bottom: -3px; left: 50%; transform: translateX(-50%); background: var(--bg3); border: 1px solid var(--border); font-family: 'DM Mono', monospace; font-size: .58rem; padding: 1px 6px; border-radius: 3px; color: var(--muted); white-space: nowrap; }
-.p-name { font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
-.p1 .p-name { font-size: 1.5rem; color: var(--gold2); }
-.p2 .p-name, .p3 .p-name { font-size: 1.2rem; color: var(--text); }
-.p-tag  { font-family: 'DM Mono', monospace; font-size: .65rem; color: var(--muted); margin-top: 3px; margin-bottom: 12px; }
-.p-rank { font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; line-height: 1; margin-bottom: 4px; }
-.p1 .p-rank { font-size: 1.6rem; }
-.p2 .p-rank, .p3 .p-rank { font-size: 1.3rem; }
-.p-lp  { font-family: 'DM Mono', monospace; font-size: .65rem; color: var(--muted); margin-bottom: 4px; }
-.p-wr  { font-family: 'DM Mono', monospace; font-size: .65rem; margin-bottom: 2px; }
-.p-wl  { font-family: 'DM Mono', monospace; font-size: .6rem; color: var(--muted); }
-.p-ingame { margin-top: 10px; font-family: 'DM Mono', monospace; font-size: .6rem; padding: 3px 9px; border-radius: 20px; }
-.p-ingame.live { background: rgba(74,144,217,.12); color: var(--blue); border: 1px solid rgba(74,144,217,.4); }
-.p-ingame.idle { background: var(--bg3); color: var(--muted); border: 1px solid var(--border); }
+.podium-card.in-game::after { content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 2px; background: linear-gradient(90deg, transparent, var(--blue), transparent); animation: shimmer 2.5s linear infinite; }
+@keyframes shimmer { to{left:160%} }
 
-/* MATCH STRIPS — podium */
-.p-matches { display: flex; gap: 4px; margin-top: 10px; justify-content: center; flex-wrap: wrap; }
-.p-match-cell { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 22px; }
-.p-match-strip { width: 100%; height: 4px; border-radius: 2px; }
-.p-match-strip.w { background: var(--green); }
-.p-match-strip.l { background: var(--red); }
-.p-match-champ { font-family: 'DM Mono', monospace; font-size: .42rem; color: var(--muted); text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; }
+.podium-card.p1 { width: 300px; order: 2; background: linear-gradient(160deg,#1a1408,#0f0d08 60%,#0a0c10); border: 1px solid rgba(200,155,60,.5); box-shadow: 0 0 40px rgba(200,155,60,.12),0 0 80px rgba(200,155,60,.05); }
+.podium-card.p1::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--gold),var(--gold2),var(--gold),transparent); }
+.podium-card.p2 { width: 260px; order: 1; margin-top: 48px; margin-bottom: 48px; background: linear-gradient(160deg,#111518,#0d1117); border: 1px solid rgba(154,176,192,.35); box-shadow: 0 0 30px rgba(154,176,192,.07); }
+.podium-card.p2::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--silver),var(--silver2),var(--silver),transparent); }
+.podium-card.p3 { width: 260px; order: 3; margin-top: 48px; margin-bottom: 48px; background: linear-gradient(160deg,#130e08,#0d1117); border: 1px solid rgba(205,127,50,.35); box-shadow: 0 0 30px rgba(205,127,50,.07); }
+.podium-card.p3::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--bronze),var(--bronze2),var(--bronze),transparent); }
+
+.medal { font-family:'Bebas Neue',sans-serif; font-size:.75rem; letter-spacing:2px; padding:3px 10px; border-radius:20px; margin-bottom:16px; }
+.p1 .medal { color:var(--gold2);   background:rgba(200,155,60,.15); border:1px solid rgba(200,155,60,.3); }
+.p2 .medal { color:var(--silver2); background:rgba(154,176,192,.1);  border:1px solid rgba(154,176,192,.25); }
+.p3 .medal { color:var(--bronze2); background:rgba(205,127,50,.1);   border:1px solid rgba(205,127,50,.25); }
+
+.p-avatar-ring { border-radius:50%; padding:3px; position:relative; margin-bottom:14px; }
+.p1 .p-avatar-ring { background:linear-gradient(135deg,var(--gold2),var(--gold),transparent); width:88px; height:88px; }
+.p2 .p-avatar-ring { background:linear-gradient(135deg,var(--silver2),var(--silver),transparent); width:72px; height:72px; }
+.p3 .p-avatar-ring { background:linear-gradient(135deg,var(--bronze2),var(--bronze),transparent); width:72px; height:72px; }
+.p-avatar { width:100%; height:100%; border-radius:50%; object-fit:cover; display:block; background:var(--bg3); }
+.p-lvl { position:absolute; bottom:-3px; left:50%; transform:translateX(-50%); background:var(--bg3); border:1px solid var(--border); font-family:'DM Mono',monospace; font-size:.58rem; padding:1px 6px; border-radius:3px; color:var(--muted); white-space:nowrap; }
+.p-name { font-family:'Bebas Neue',sans-serif; letter-spacing:1px; line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; }
+.p1 .p-name { font-size:1.5rem; color:var(--gold2); }
+.p2 .p-name, .p3 .p-name { font-size:1.2rem; color:var(--text); }
+.p-tag { font-family:'DM Mono',monospace; font-size:.65rem; color:var(--muted); margin-top:3px; margin-bottom:12px; }
+.p-rank { font-family:'Bebas Neue',sans-serif; letter-spacing:1px; line-height:1; margin-bottom:4px; }
+.p1 .p-rank { font-size:1.6rem; }
+.p2 .p-rank, .p3 .p-rank { font-size:1.3rem; }
+.p-lp  { font-family:'DM Mono',monospace; font-size:.65rem; color:var(--muted); margin-bottom:4px; }
+.p-wr  { font-family:'DM Mono',monospace; font-size:.65rem; margin-bottom:2px; }
+.p-wl  { font-family:'DM Mono',monospace; font-size:.6rem; color:var(--muted); }
+.p-ingame { margin-top:10px; font-family:'DM Mono',monospace; font-size:.6rem; padding:3px 9px; border-radius:20px; }
+.p-ingame.live { background:rgba(74,144,217,.12); color:var(--blue); border:1px solid rgba(74,144,217,.4); }
+.p-ingame.idle { background:var(--bg3); color:var(--muted); border:1px solid var(--border); }
+
+/* MATCH STRIPS */
+.p-matches { display:flex; gap:4px; margin-top:10px; justify-content:center; flex-wrap:wrap; }
+.p-mcell { display:flex; flex-direction:column; align-items:center; gap:2px; width:22px; }
+.p-mstrip { width:100%; height:4px; border-radius:2px; }
+.p-mstrip.w { background:var(--green); }
+.p-mstrip.l { background:var(--red); }
+.p-mchamp { font-family:'DM Mono',monospace; font-size:.42rem; color:var(--muted); text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%; }
 
 /* LIST */
-.list-label { font-family: 'DM Mono', monospace; font-size: .65rem; text-transform: uppercase; letter-spacing: 3px; color: var(--muted); margin-bottom: 14px; }
-#list { display: flex; flex-direction: column; gap: 10px; }
-.list-row { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 14px; transition: border-color .25s, transform .2s; animation: slideUp .4s ease both; position: relative; overflow: hidden; }
+.list-label { font-family:'DM Mono',monospace; font-size:.65rem; text-transform:uppercase; letter-spacing:3px; color:var(--muted); margin-bottom:14px; }
+#list { display:flex; flex-direction:column; gap:10px; }
+.list-row { background:var(--bg2); border:1px solid var(--border); border-radius:12px; padding:14px 18px; display:flex; align-items:center; gap:14px; transition:border-color .25s,transform .2s; animation:slideUp .4s ease both; position:relative; overflow:hidden; }
 @keyframes slideUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
-.list-row:hover { border-color: rgba(200,155,60,.3); transform: translateX(3px); }
-.list-row.in-game { border-color: rgba(74,144,217,.4); }
-.list-row.in-game::after { content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 2px; background: linear-gradient(90deg, transparent, var(--blue), transparent); animation: shimmer-bar 2.5s linear infinite; }
-.list-pos { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; color: var(--muted); letter-spacing: 1px; width: 28px; text-align: center; flex-shrink: 0; }
-.list-avatar-wrap { position: relative; flex-shrink: 0; }
-.list-avatar { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border); background: var(--bg3); }
-.list-lvl { position: absolute; bottom: -3px; left: 50%; transform: translateX(-50%); background: var(--bg3); border: 1px solid var(--border); font-family: 'DM Mono', monospace; font-size: .52rem; padding: 1px 4px; border-radius: 3px; color: var(--muted); white-space: nowrap; }
-.list-name-block { min-width: 0; flex: 1; }
-.list-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 1px; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.list-tag  { font-family: 'DM Mono', monospace; font-size: .62rem; color: var(--muted); }
+.list-row:hover { border-color:rgba(200,155,60,.3); transform:translateX(3px); }
+.list-row.in-game { border-color:rgba(74,144,217,.4); }
+.list-row.in-game::after { content:''; position:absolute; top:0; left:-100%; width:60%; height:2px; background:linear-gradient(90deg,transparent,var(--blue),transparent); animation:shimmer 2.5s linear infinite; }
+.list-pos { font-family:'Bebas Neue',sans-serif; font-size:1.4rem; color:var(--muted); width:28px; text-align:center; flex-shrink:0; }
+.list-avatar-wrap { position:relative; flex-shrink:0; }
+.list-avatar { width:42px; height:42px; border-radius:50%; object-fit:cover; border:1px solid var(--border); background:var(--bg3); }
+.list-lvl { position:absolute; bottom:-3px; left:50%; transform:translateX(-50%); background:var(--bg3); border:1px solid var(--border); font-family:'DM Mono',monospace; font-size:.52rem; padding:1px 4px; border-radius:3px; color:var(--muted); white-space:nowrap; }
+.list-name-block { min-width:0; flex:1; }
+.list-name { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; letter-spacing:1px; line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.list-tag  { font-family:'DM Mono',monospace; font-size:.62rem; color:var(--muted); }
 
-/* MATCH STRIPS — lista */
-.list-matches { display: flex; gap: 3px; flex-shrink: 0; align-items: center; }
-.list-match-cell { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 20px; }
-.list-match-strip { width: 100%; height: 4px; border-radius: 2px; }
-.list-match-strip.w { background: var(--green); }
-.list-match-strip.l { background: var(--red); }
-.list-match-champ { font-family: 'DM Mono', monospace; font-size: .42rem; color: var(--muted); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+.list-matches { display:flex; gap:3px; flex-shrink:0; align-items:center; }
+.list-mcell { display:flex; flex-direction:column; align-items:center; gap:2px; width:20px; }
+.list-mstrip { width:100%; height:4px; border-radius:2px; }
+.list-mstrip.w { background:var(--green); }
+.list-mstrip.l { background:var(--red); }
+.list-mchamp { font-family:'DM Mono',monospace; font-size:.42rem; color:var(--muted); text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; }
 
-.list-rank-block { text-align: right; flex-shrink: 0; }
-.list-tier { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: .5px; }
-.list-lp   { font-family: 'DM Mono', monospace; font-size: .62rem; color: var(--muted); }
-.list-wr   { font-family: 'DM Mono', monospace; font-size: .62rem; }
-.list-wl   { font-family: 'DM Mono', monospace; font-size: .58rem; color: var(--muted); }
-.list-ingame { font-family: 'DM Mono', monospace; font-size: .58rem; padding: 3px 8px; border-radius: 20px; flex-shrink: 0; }
-.list-ingame.live { background: rgba(0,128,255,.18); color: var(--blue); border: 1px solid rgba(0,128,255,.6); box-shadow: 0 0 12px rgba(0,128,255,.4); }
-.list-ingame.idle { background: var(--bg3); color: var(--muted); border: 1px solid var(--border); }
+.list-rank-block { text-align:right; flex-shrink:0; }
+.list-tier { font-family:'Bebas Neue',sans-serif; font-size:1rem; letter-spacing:.5px; }
+.list-lp   { font-family:'DM Mono',monospace; font-size:.62rem; color:var(--muted); }
+.list-wr   { font-family:'DM Mono',monospace; font-size:.62rem; }
+.list-wl   { font-family:'DM Mono',monospace; font-size:.58rem; color:var(--muted); }
+.list-ingame { font-family:'DM Mono',monospace; font-size:.58rem; padding:3px 8px; border-radius:20px; flex-shrink:0; }
+.list-ingame.live { background:rgba(0,128,255,.18); color:var(--blue); border:1px solid rgba(0,128,255,.6); box-shadow:0 0 12px rgba(0,128,255,.4); }
+.list-ingame.idle { background:var(--bg3); color:var(--muted); border:1px solid var(--border); }
 
-/* TIER COLORS */
-.t-iron        { color: #9e9e9e; }
-.t-bronze      { color: #cd7f32; }
-.t-silver      { color: #9ab0c0; }
-.t-gold        { color: var(--gold); }
-.t-platinum    { color: #3dc0a0; }
-.t-emerald     { color: #50c878; }
-.t-diamond     { color: #9ab8ff; }
-.t-master      { color: #d080ff; }
-.t-grandmaster { color: #ff6644; }
-.t-challenger  { color: var(--gold2); text-shadow: 0 0 12px rgba(240,206,113,.5); }
-.t-unranked    { color: var(--muted); }
-.wr-w   { color: var(--green); }
-.wr-mid { color: var(--gold); }
-.wr-l   { color: var(--red); }
+.t-iron{color:#9e9e9e} .t-bronze{color:#cd7f32} .t-silver{color:#9ab0c0} .t-gold{color:var(--gold)}
+.t-platinum{color:#3dc0a0} .t-emerald{color:#50c878} .t-diamond{color:#9ab8ff}
+.t-master{color:#d080ff} .t-grandmaster{color:#ff6644}
+.t-challenger{color:var(--gold2);text-shadow:0 0 12px rgba(240,206,113,.5)}
+.t-unranked{color:var(--muted)}
+.wr-w{color:var(--green)} .wr-mid{color:var(--gold)} .wr-l{color:var(--red)}
 
-.skel { background: linear-gradient(90deg, var(--bg2) 25%, var(--bg3) 50%, var(--bg2) 75%); background-size: 200% 100%; animation: skimmer 1.5s infinite; border-radius: 6px; }
+.skel { background:linear-gradient(90deg,var(--bg2) 25%,var(--bg3) 50%,var(--bg2) 75%); background-size:200% 100%; animation:skimmer 1.5s infinite; border-radius:6px; }
 @keyframes skimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
-#toast { position: fixed; bottom: 32px; left: 50%; transform: translateX(-50%); background: var(--bg3); border: 1px solid var(--border); color: var(--text); font-family: 'DM Mono', monospace; font-size: .78rem; padding: 10px 22px; border-radius: 8px; opacity: 0; transition: opacity .25s; pointer-events: none; z-index: 999; }
-#toast.show { opacity: 1; }
-#toast.err  { border-color: var(--red); color: var(--red); }
+#toast { position:fixed; bottom:32px; left:50%; transform:translateX(-50%); background:var(--bg3); border:1px solid var(--border); color:var(--text); font-family:'DM Mono',monospace; font-size:.78rem; padding:10px 22px; border-radius:8px; opacity:0; transition:opacity .25s; pointer-events:none; z-index:999; }
+#toast.show { opacity:1; }
+#toast.err  { border-color:var(--red); color:var(--red); }
 
-@media (max-width: 800px) {
-  #podium { flex-direction: column; align-items: center; }
-  .podium-card { width: 90% !important; max-width: 320px; order: unset !important; margin-top: 0 !important; margin-bottom: 0 !important; }
-  .list-matches { display: none; }
+@media (max-width:800px) {
+  #podium { flex-direction:column; align-items:center; }
+  .podium-card { width:90% !important; max-width:320px; order:unset !important; margin-top:0 !important; margin-bottom:0 !important; }
+  .list-matches { display:none; }
 }
 </style>
 </head>
@@ -182,13 +169,11 @@ header { display: flex; align-items: flex-end; justify-content: space-between; p
       <button class="btn-refresh" id="btn-refresh" onclick="forceRefresh()">↻ Actualizar</button>
     </div>
   </header>
-
   <div id="status-bar">
     <div class="status-line"></div>
     <span id="last-updated">cargando...</span>
     <div class="status-line"></div>
   </div>
-
   <div class="list-label" id="list-label" style="display:block">CLASIFICACIÓN</div>
   <div id="podium"></div>
   <div id="list"></div>
@@ -196,8 +181,20 @@ header { display: flex; align-items: flex-end; justify-content: space-between; p
 <div id="toast"></div>
 
 <script>
-const DDRAGON_V = "15.1.1";
-const ICON = id => `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_V}/img/profileicon/${id}.png`;
+const DDRAGON_V  = "15.1.1";
+const API_BASE   = "/api/riot";
+const ICON       = id => `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_V}/img/profileicon/${id}.png`;
+const MATCH_DELAY = 1200; // ms entre llamadas de detalle de partida
+
+// ── localStorage cache para partidas ──────────────────────────
+// matchCache[matchId][puuid] = { win, champ, k, d, a }
+function loadMatchCache() {
+  try { return JSON.parse(localStorage.getItem("awa_mc_v2") || "{}"); } catch { return {}; }
+}
+function saveMatchCache() {
+  try { localStorage.setItem("awa_mc_v2", JSON.stringify(matchCache)); } catch {}
+}
+let matchCache = loadMatchCache();
 
 const TIER_ORDER = { IRON:0,BRONZE:1,SILVER:2,GOLD:3,PLATINUM:4,EMERALD:5,DIAMOND:6,MASTER:7,GRANDMASTER:8,CHALLENGER:9 };
 const RANK_ORDER = { IV:0,III:1,II:2,I:3 };
@@ -211,24 +208,24 @@ let cdTimer = null;
   renderLoadingState();
   await loadSnapshot();
   startCountdown();
+  // Cargar partidas en background sin bloquear la UI
+  loadAllMatches();
 })();
 
-// ── CARGAR SNAPSHOT ───────────────────────────────────────────
+// ── SNAPSHOT: rank + live + matchIds ─────────────────────────
 async function loadSnapshot(force = false) {
   try {
     const res  = await fetch("/api/snapshot" + (force ? "?force=1" : ""));
     if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
-
     players = data.players || [];
-
     const hora   = new Date(data.updatedAt).toLocaleTimeString("es-ES");
     const origen = data.cached ? "caché" : "actualizado";
     document.getElementById("last-updated").textContent = `datos de las ${hora} (${origen})`;
-
     const elapsed = Date.now() - data.updatedAt;
     cdSecs = Math.max(10, Math.floor((3600000 - elapsed) / 1000));
-
+    // Mezclar partidas ya cacheadas antes de renderizar
+    injectCachedMatches();
     renderEverything();
   } catch (e) {
     console.error(e);
@@ -237,13 +234,78 @@ async function loadSnapshot(force = false) {
   }
 }
 
+// Inyecta en cada jugador las partidas que ya tiene el localStorage
+function injectCachedMatches() {
+  for (const p of players) {
+    if (p.error || !p.matchIds) continue;
+    p.recentMatches = p.matchIds
+      .map(id => matchCache[id]?.[p.puuid] || null)
+      .filter(Boolean);
+  }
+}
+
+// ── CARGAR PARTIDAS EN BACKGROUND ────────────────────────────
+// Solo pide las que no están en matchCache, en serie con delay
+let matchesLoading = false;
+async function loadAllMatches() {
+  if (matchesLoading) return;
+  matchesLoading = true;
+
+  let downloaded = 0;
+  // Recoge todos los matchIds únicos que faltan
+  const needed = new Map(); // matchId → Set<puuid>
+  for (const p of players) {
+    if (p.error || !p.matchIds) continue;
+    for (const id of p.matchIds) {
+      if (matchCache[id]?.[p.puuid]) continue; // ya lo tenemos
+      if (!needed.has(id)) needed.set(id, new Set());
+      needed.get(id).add(p.puuid);
+    }
+  }
+
+  for (const [id, puuids] of needed) {
+    try {
+      const r = await fetch(`${API_BASE}?path=${encodeURIComponent("/match/" + id)}`);
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const m = await r.json();
+      // Guardar perspectiva de cada participante
+      if (!matchCache[id]) matchCache[id] = {};
+      for (const part of m.info.participants) {
+        matchCache[id][part.puuid] = {
+          win:   part.win,
+          champ: part.championName,
+          k:     part.kills,
+          d:     part.deaths,
+          a:     part.assists,
+        };
+      }
+      downloaded++;
+      saveMatchCache();
+      // Re-inyectar y re-renderizar con lo que hay hasta ahora
+      injectCachedMatches();
+      renderEverything();
+    } catch (err) {
+      console.warn("Match error", id, err.message);
+    }
+    await sleep(MATCH_DELAY);
+  }
+
+  matchesLoading = false;
+  if (downloaded > 0) {
+    console.log(`[matches] ${downloaded} nuevas descargadas`);
+  }
+}
+
+// ── BOTÓN ACTUALIZAR ──────────────────────────────────────────
 async function forceRefresh() {
   const btn = document.getElementById("btn-refresh");
   btn.disabled = true;
-  toast("Actualizando... (puede tardar ~2 min)");
+  toast("Actualizando...");
   await loadSnapshot(true);
   toast("¡Actualizado!");
   btn.disabled = false;
+  // Volver a cargar partidas nuevas si las hay
+  loadAllMatches();
 }
 
 // ── COUNTDOWN ─────────────────────────────────────────────────
@@ -259,11 +321,12 @@ function startCountdown() {
     if (cdSecs <= 0) {
       await loadSnapshot();
       startCountdown();
+      loadAllMatches();
     }
   }, 1000);
 }
 
-// ── HELPERS ───────────────────────────────────────────────────
+// ── RENDER ────────────────────────────────────────────────────
 function rankScore(p) {
   const s = (p.rankData || []).find(r => r.queueType === "RANKED_SOLO_5x5");
   if (!s) return -1;
@@ -274,13 +337,7 @@ function rankInfo(p) {
   const s = (p.rankData || []).find(r => r.queueType === "RANKED_SOLO_5x5");
   if (!s) return { tierCls: "t-unranked", tierStr: "Unranked", lp: "", wr: null, wl: "" };
   const wr = Math.round(s.wins / (s.wins + s.losses) * 100);
-  return {
-    tierCls: "t-" + s.tier.toLowerCase(),
-    tierStr: s.tier + " " + s.rank,
-    lp:      s.leaguePoints + " LP",
-    wr,
-    wl:      s.wins + "W " + s.losses + "L",
-  };
+  return { tierCls: "t-" + s.tier.toLowerCase(), tierStr: s.tier + " " + s.rank, lp: s.leaguePoints + " LP", wr, wl: s.wins + "W " + s.losses + "L" };
 }
 
 function wrCls(wr) {
@@ -290,20 +347,10 @@ function wrCls(wr) {
   return "wr-l";
 }
 
-function matchStrips(matches, cellCls, stripCls) {
-  if (!matches || !matches.length) return "";
-  return matches.map(m => `
-    <div class="${cellCls}">
-      <div class="${stripCls} ${m.win ? "w" : "l"}"></div>
-      <div class="${cellCls.includes("p-") ? "p-match-champ" : "list-match-champ"}">${m.champ}</div>
-    </div>`).join("");
-}
-
-// ── RENDER ────────────────────────────────────────────────────
 function renderEverything() {
   const all = [...players].sort((a, b) => rankScore(b) - rankScore(a));
   renderPodium(all.slice(0, 3));
-  const rest    = all.slice(3);
+  const rest = all.slice(3);
   const listEl  = document.getElementById("list");
   const labelEl = document.getElementById("list-label");
   listEl.innerHTML = "";
@@ -341,6 +388,26 @@ function renderLoadingState() {
     </div>`;
 }
 
+function podiumStrips(p) {
+  if (!p.recentMatches?.length) return "";
+  const cells = p.recentMatches.map(m => `
+    <div class="p-mcell">
+      <div class="p-mstrip ${m.win ? "w" : "l"}"></div>
+      <div class="p-mchamp">${m.champ}</div>
+    </div>`).join("");
+  return `<div class="p-matches">${cells}</div>`;
+}
+
+function listStrips(p) {
+  if (!p.recentMatches?.length) return "";
+  const cells = p.recentMatches.map(m => `
+    <div class="list-mcell">
+      <div class="list-mstrip ${m.win ? "w" : "l"}"></div>
+      <div class="list-mchamp">${m.champ}</div>
+    </div>`).join("");
+  return `<div class="list-matches">${cells}</div>`;
+}
+
 function renderPodium(top3) {
   const podium = document.getElementById("podium");
   podium.innerHTML = "";
@@ -352,7 +419,6 @@ function renderPodium(top3) {
   slots.forEach(({ p, cls, label, delay }) => {
     if (!p) return;
     const r = rankInfo(p);
-    const strips = matchStrips(p.recentMatches, "p-match-cell", "p-match-strip");
     podium.insertAdjacentHTML("beforeend", `
       <div class="podium-card ${cls}${p.inGame ? " in-game" : ""}" style="animation-delay:${delay}">
         <div class="medal">${label}</div>
@@ -367,7 +433,7 @@ function renderPodium(top3) {
         ${r.wr !== null ? `<div class="p-wr ${wrCls(r.wr)}">${r.wr}% WR</div>` : ""}
         <div class="p-wl">${r.wl}</div>
         <div class="p-ingame ${p.inGame ? "live" : "idle"}">${p.inGame ? "● IN GAME" : "· offline"}</div>
-        ${strips ? `<div class="p-matches">${strips}</div>` : ""}
+        ${podiumStrips(p)}
       </div>`);
   });
 }
@@ -378,10 +444,7 @@ function buildRow(p, pos) {
       <div class="list-pos">${pos}</div>
       <div style="font-family:'DM Mono',monospace;font-size:.8rem;color:var(--red)">✕ ${p.gameName}#${p.tagLine}</div>
     </div>`;
-
-  const r      = rankInfo(p);
-  const strips = matchStrips(p.recentMatches, "list-match-cell", "list-match-strip");
-
+  const r = rankInfo(p);
   return `
     <div class="list-row${p.inGame ? " in-game" : ""}">
       <div class="list-pos">${pos}</div>
@@ -393,7 +456,7 @@ function buildRow(p, pos) {
         <div class="list-name">${p.gameName}</div>
         <div class="list-tag">#${p.tagLine}</div>
       </div>
-      ${strips ? `<div class="list-matches">${strips}</div>` : ""}
+      ${listStrips(p)}
       <div class="list-rank-block">
         <div class="list-tier ${r.tierCls}">${r.tierStr}</div>
         <div class="list-lp">${r.lp}</div>
@@ -403,6 +466,8 @@ function buildRow(p, pos) {
       <div class="list-ingame ${p.inGame ? "live" : "idle"}">${p.inGame ? "● IN GAME" : "· offline"}</div>
     </div>`;
 }
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 function toast(msg, err = false) {
   const t = document.getElementById("toast");

@@ -1,25 +1,28 @@
-// api/snapshot.js  ─  caché de 1 hora en memoria del servidor
-// Reutiliza exactamente la misma lógica de fetch que riot.js (que ya funciona)
+// api/snapshot.js
+// Devuelve rank + live + matchIds de todos los jugadores.
+// Los detalles de partidas los descarga el cliente y los guarda en localStorage.
+// Así nunca superamos el timeout de Vercel (10s) ni el rate limit.
 
 const https     = require("https");
 const ROUTING   = "europe.api.riotgames.com";
 const EUW       = "euw1.api.riotgames.com";
 const CACHE_TTL = 60 * 60 * 1000; // 1 hora
-const DELAY_MS  = 350;             // ms entre jugadores (rate limit safe)
+const DELAY_MS  = 350;
+const MAX_MATCHES = 10;
 
 const PLAYERS = [
-  { name: "DDR4 2x16GB 3600", tag: "pepi" },
-  { name: "LaDragonaTragona",  tag: "AWA"   },
-  { name: "lil yowi",          tag: "TS13"  },
-  { name: "lil aitor",         tag: "EUW"   },
-  { name: "comehigados",       tag: "EUW"   },
-  { name: "pepi",              tag: "346"   },
-  { name: "PapeldeCulo",       tag: "EUW"   },
-  { name: "FinElGitΔno",       tag: "695"   },
-  { name: "Xus17zgZ",          tag: "EUW"   },
-  { name: "Si hombre",         tag: "TMAWA" },
-  { name: "Epst3inBunny",      tag: "meow"  },
-  { name: "her D is bigger",   tag: "cnc"   },
+  { name: "DDR4 2x16GB 3600", tag: "pepi"   },
+  { name: "LaDragonaTragona",  tag: "AWA"    },
+  { name: "lil yowi",          tag: "TS13"   },
+  { name: "lil aitor",         tag: "EUW"    },
+  { name: "comehigados",       tag: "EUW"    },
+  { name: "pepi",              tag: "346"    },
+  { name: "PapeldeCulo",       tag: "EUW"    },
+  { name: "FinElGitΔno",       tag: "695"    },
+  { name: "Xus17zgZ",          tag: "EUW"    },
+  { name: "Si hombre",         tag: "TMAWA"  },
+  { name: "Epst3inBunny",      tag: "meow"   },
+  { name: "her D is bigger",   tag: "cnc"    },
 ];
 
 const CORS = {
@@ -28,7 +31,7 @@ const CORS = {
   "Content-Type":                 "application/json",
 };
 
-let cache    = null;   // { players, updatedAt }
+let cache    = null;
 let building = false;
 
 module.exports = async function handler(req, res) {
@@ -40,17 +43,15 @@ module.exports = async function handler(req, res) {
 
   const force = req.query.force === "1";
 
-  // Devolver caché si es fresco
   if (cache && !force && Date.now() - cache.updatedAt < CACHE_TTL) {
     return res.status(200).json({ ...cache, cached: true });
   }
 
-  // Si ya está construyendo, esperar
   if (building) {
     const t0 = Date.now();
-    while (building && Date.now() - t0 < 55000) await sleep(400);
+    while (building && Date.now() - t0 < 25000) await sleep(400);
     if (cache) return res.status(200).json({ ...cache, cached: true });
-    return res.status(503).json({ error: "Construyendo snapshot, reintenta" });
+    return res.status(503).json({ error: "Construyendo, reintenta" });
   }
 
   building = true;
@@ -59,7 +60,7 @@ module.exports = async function handler(req, res) {
     cache = { players, updatedAt: Date.now() };
     return res.status(200).json({ ...cache, cached: false });
   } catch (e) {
-    console.error("Snapshot fatal:", e.message);
+    console.error("Snapshot error:", e.message);
     if (cache) return res.status(200).json({ ...cache, cached: true, stale: true });
     return res.status(500).json({ error: e.message });
   } finally {
@@ -67,33 +68,28 @@ module.exports = async function handler(req, res) {
   }
 };
 
-// ─────────────────────────────────────────────────────────────
 async function buildSnapshot(apiKey) {
   const results = [];
-
   for (const p of PLAYERS) {
     try {
-      // 1. Account → puuid, gameName, tagLine
       const acc = await get(ROUTING,
-        `/riot/account/v1/accounts/by-riot-id/${e(p.name)}/${e(p.tag)}`,
-        apiKey);
+        `/riot/account/v1/accounts/by-riot-id/${e(p.name)}/${e(p.tag)}`, apiKey);
       await sleep(DELAY_MS);
 
-      // 2. Summoner → profileIconId, summonerLevel
       const sum = await get(EUW,
-        `/lol/summoner/v4/summoners/by-puuid/${acc.puuid}`,
-        apiKey);
+        `/lol/summoner/v4/summoners/by-puuid/${acc.puuid}`, apiKey);
       await sleep(DELAY_MS);
 
-      // 3. Rank → rankData array  (by-puuid, igual que riot.js)
       const rankData = await get(EUW,
-        `/lol/league/v4/entries/by-puuid/${acc.puuid}`,
-        apiKey);
+        `/lol/league/v4/entries/by-puuid/${acc.puuid}`, apiKey);
       await sleep(DELAY_MS);
 
-      // 4. Live game → null si no está jugando
       const live = await getOpt(EUW,
-        `/lol/spectator/v5/active-games/by-summoner/${acc.puuid}`,
+        `/lol/spectator/v5/active-games/by-summoner/${acc.puuid}`, apiKey);
+      await sleep(DELAY_MS);
+
+      const matchIds = await get(ROUTING,
+        `/lol/match/v5/matches/by-puuid/${acc.puuid}/ids?start=0&count=${MAX_MATCHES}&queue=420`,
         apiKey);
       await sleep(DELAY_MS);
 
@@ -103,20 +99,18 @@ async function buildSnapshot(apiKey) {
         puuid:         acc.puuid,
         profileIconId: sum.profileIconId,
         summonerLevel: sum.summonerLevel,
-        rankData,                           // array con entradas soloQ / flex
+        rankData,
         inGame:        !!(live && live.gameId),
+        matchIds,       // el cliente usará esto para saber qué partidas cargar
       });
-
     } catch (err) {
       console.warn(`[snapshot] ${p.name}#${p.tag}: ${err.message}`);
       results.push({ gameName: p.name, tagLine: p.tag, error: true });
     }
   }
-
   return results;
 }
 
-// ─── HTTPS helpers ────────────────────────────────────────────
 function get(hostname, path, apiKey) {
   return new Promise((resolve, reject) => {
     const req = https.request(
@@ -161,4 +155,4 @@ function getOpt(hostname, path, apiKey) {
 }
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-function e(s) { return encodeURIComponent(decodeURIComponent(s)); }
+function e(s)      { return encodeURIComponent(decodeURIComponent(s)); }
