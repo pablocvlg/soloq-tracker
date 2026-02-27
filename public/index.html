@@ -19,7 +19,7 @@
   --silver2: #c8dce8;
   --bronze:  #cd7f32;
   --bronze2: #e8a050;
-  --blue:    #4a90d9;
+  --blue:    #1e90ff;
   --red:     #d9534a;
   --green:   #4ad97a;
   --text:    #cccbc4;
@@ -254,6 +254,7 @@ header {
 .t-challenger  { color: var(--gold2); text-shadow: 0 0 12px rgba(240,206,113,.5); }
 .t-unranked    { color: var(--muted); }
 .wr-w { color: var(--green); }
+.wr-mid { color: var(--gold); }
 .wr-l { color: var(--red); }
 
 .skel {
@@ -469,7 +470,16 @@ function renderPodium(top3) {
     const lpStr   = soloQ ? `${soloQ.leaguePoints} LP` : "—";
     const wr      = soloQ ? Math.round(soloQ.wins/(soloQ.wins+soloQ.losses)*100) : null;
     const wrStr   = wr !== null ? `${wr}% WR` : "";
-    const wrCls   = wr !== null ? (wr>=50?"wr-w":"wr-l") : "";
+    let wrCls = "";
+    if (wr !== null) {
+        if (wr >= 49 && wr <= 52) {
+            wrCls = "wr-mid";
+        } else if (wr > 52) {
+            wrCls = "wr-w";
+        } else {
+            wrCls = "wr-l";
+        }
+    }
     const wlStr   = soloQ ? `${soloQ.wins}W ${soloQ.losses}L` : "";
 
     podium.insertAdjacentHTML("beforeend", `
@@ -507,7 +517,16 @@ function buildListRow(p, pos) {
   const lpStr   = soloQ ? `${soloQ.leaguePoints} LP` : "";
   const wr      = soloQ ? Math.round(soloQ.wins/(soloQ.wins+soloQ.losses)*100) : null;
   const wrStr   = wr !== null ? `${wr}% WR` : "";
-  const wrCls   = wr !== null ? (wr>=50?"wr-w":"wr-l") : "";
+  let wrCls = "";
+  if (wr !== null) {
+    if (wr >= 49 && wr <= 52) {
+        wrCls = "wr-mid";
+    } else if (wr > 52) {
+        wrCls = "wr-w";
+    } else {
+        wrCls = "wr-l";
+    }
+  }
   const wlStr   = soloQ ? `${soloQ.wins}W ${soloQ.losses}L` : "";
 
   return `
