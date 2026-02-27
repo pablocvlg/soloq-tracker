@@ -1,6 +1,6 @@
 // api/riot.js — Vercel Serverless Function
 // Añade tu API key en Vercel → Project Settings → Environment Variables
-// Variable name: RIOT_API_KEY
+// Variable name: RIOT_API_KEY -> secret
 
 const ROUTING = "https://europe.api.riotgames.com";
 const EUW     = "https://euw1.api.riotgames.com";
