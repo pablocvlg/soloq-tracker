@@ -37,12 +37,11 @@ body::before {
     radial-gradient(ellipse 50% 25% at 85% 90%, rgba(200,155,60,.07) 0%, transparent 55%);
 }
 body::after {
-  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-  opacity: .025;
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0; opacity: .025;
   background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   background-size: 128px;
 }
-.wrapper { position: relative; z-index: 1; max-width: 1100px; margin: 0 auto; padding: 0 28px 100px; }
+.wrapper { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 0 28px 100px; }
 
 /* HEADER */
 header { display: flex; align-items: flex-end; justify-content: space-between; padding: 36px 0 24px; }
@@ -71,38 +70,46 @@ header { display: flex; align-items: flex-end; justify-content: space-between; p
 @keyframes shimmer-bar { to{left:160%} }
 .podium-card.p1 { width: 300px; order: 2; background: linear-gradient(160deg, #1a1408 0%, #0f0d08 60%, #0a0c10 100%); border: 1px solid rgba(200,155,60,.5); box-shadow: 0 0 40px rgba(200,155,60,.12), 0 0 80px rgba(200,155,60,.05); }
 .podium-card.p1::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--gold), var(--gold2), var(--gold), transparent); }
-.podium-card.p2 { width: 250px; order: 1; margin-top: 48px; margin-bottom: 48px; background: linear-gradient(160deg, #111518 0%, #0d1117 100%); border: 1px solid rgba(154,176,192,.35); box-shadow: 0 0 30px rgba(154,176,192,.07); }
+.podium-card.p2 { width: 260px; order: 1; margin-top: 48px; margin-bottom: 48px; background: linear-gradient(160deg, #111518 0%, #0d1117 100%); border: 1px solid rgba(154,176,192,.35); box-shadow: 0 0 30px rgba(154,176,192,.07); }
 .podium-card.p2::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--silver), var(--silver2), var(--silver), transparent); }
-.podium-card.p3 { width: 250px; order: 3; margin-top: 48px; margin-bottom: 48px; background: linear-gradient(160deg, #130e08 0%, #0d1117 100%); border: 1px solid rgba(205,127,50,.35); box-shadow: 0 0 30px rgba(205,127,50,.07); }
+.podium-card.p3 { width: 260px; order: 3; margin-top: 48px; margin-bottom: 48px; background: linear-gradient(160deg, #130e08 0%, #0d1117 100%); border: 1px solid rgba(205,127,50,.35); box-shadow: 0 0 30px rgba(205,127,50,.07); }
 .podium-card.p3::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--bronze), var(--bronze2), var(--bronze), transparent); }
 .medal { font-family: 'Bebas Neue', sans-serif; font-size: .75rem; letter-spacing: 2px; padding: 3px 10px; border-radius: 20px; margin-bottom: 16px; }
 .p1 .medal { color: var(--gold2);   background: rgba(200,155,60,.15); border: 1px solid rgba(200,155,60,.3); }
 .p2 .medal { color: var(--silver2); background: rgba(154,176,192,.1);  border: 1px solid rgba(154,176,192,.25); }
 .p3 .medal { color: var(--bronze2); background: rgba(205,127,50,.1);   border: 1px solid rgba(205,127,50,.25); }
 .p-avatar-ring { border-radius: 50%; padding: 3px; position: relative; margin-bottom: 14px; }
-.p1 .p-avatar-ring { background: linear-gradient(135deg, var(--gold2),   var(--gold),   transparent); width: 88px; height: 88px; }
-.p2 .p-avatar-ring { background: linear-gradient(135deg, var(--silver2), var(--silver), transparent); width: 72px; height: 72px; }
-.p3 .p-avatar-ring { background: linear-gradient(135deg, var(--bronze2), var(--bronze), transparent); width: 72px; height: 72px; }
+.p1 .p-avatar-ring { background: linear-gradient(135deg, var(--gold2), var(--gold), transparent); width: 88px; height: 88px; }
+.p2 .p-avatar-ring, .p3 .p-avatar-ring { background: linear-gradient(135deg, var(--silver2), var(--silver), transparent); width: 72px; height: 72px; }
+.p3 .p-avatar-ring { background: linear-gradient(135deg, var(--bronze2), var(--bronze), transparent); }
 .p-avatar { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; background: var(--bg3); }
 .p-lvl { position: absolute; bottom: -3px; left: 50%; transform: translateX(-50%); background: var(--bg3); border: 1px solid var(--border); font-family: 'DM Mono', monospace; font-size: .58rem; padding: 1px 6px; border-radius: 3px; color: var(--muted); white-space: nowrap; }
 .p-name { font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
 .p1 .p-name { font-size: 1.5rem; color: var(--gold2); }
 .p2 .p-name, .p3 .p-name { font-size: 1.2rem; color: var(--text); }
-.p-tag  { font-family: 'DM Mono', monospace; font-size: .65rem; color: var(--muted); margin-top: 3px; margin-bottom: 14px; }
+.p-tag  { font-family: 'DM Mono', monospace; font-size: .65rem; color: var(--muted); margin-top: 3px; margin-bottom: 12px; }
 .p-rank { font-family: 'Bebas Neue', sans-serif; letter-spacing: 1px; line-height: 1; margin-bottom: 4px; }
 .p1 .p-rank { font-size: 1.6rem; }
 .p2 .p-rank, .p3 .p-rank { font-size: 1.3rem; }
 .p-lp  { font-family: 'DM Mono', monospace; font-size: .65rem; color: var(--muted); margin-bottom: 4px; }
-.p-wr  { font-family: 'DM Mono', monospace; font-size: .65rem; margin-bottom: 3px; }
+.p-wr  { font-family: 'DM Mono', monospace; font-size: .65rem; margin-bottom: 2px; }
 .p-wl  { font-family: 'DM Mono', monospace; font-size: .6rem; color: var(--muted); }
-.p-ingame { margin-top: 12px; font-family: 'DM Mono', monospace; font-size: .6rem; padding: 3px 9px; border-radius: 20px; }
+.p-ingame { margin-top: 10px; font-family: 'DM Mono', monospace; font-size: .6rem; padding: 3px 9px; border-radius: 20px; }
 .p-ingame.live { background: rgba(74,144,217,.12); color: var(--blue); border: 1px solid rgba(74,144,217,.4); }
 .p-ingame.idle { background: var(--bg3); color: var(--muted); border: 1px solid var(--border); }
+
+/* MATCH STRIPS — podium */
+.p-matches { display: flex; gap: 4px; margin-top: 10px; justify-content: center; flex-wrap: wrap; }
+.p-match-cell { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 22px; }
+.p-match-strip { width: 100%; height: 4px; border-radius: 2px; }
+.p-match-strip.w { background: var(--green); }
+.p-match-strip.l { background: var(--red); }
+.p-match-champ { font-family: 'DM Mono', monospace; font-size: .42rem; color: var(--muted); text-align: center; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; width: 100%; }
 
 /* LIST */
 .list-label { font-family: 'DM Mono', monospace; font-size: .65rem; text-transform: uppercase; letter-spacing: 3px; color: var(--muted); margin-bottom: 14px; }
 #list { display: flex; flex-direction: column; gap: 10px; }
-.list-row { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 16px; transition: border-color .25s, transform .2s; animation: slideUp .4s ease both; position: relative; overflow: hidden; }
+.list-row { background: var(--bg2); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; display: flex; align-items: center; gap: 14px; transition: border-color .25s, transform .2s; animation: slideUp .4s ease both; position: relative; overflow: hidden; }
 @keyframes slideUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
 .list-row:hover { border-color: rgba(200,155,60,.3); transform: translateX(3px); }
 .list-row.in-game { border-color: rgba(74,144,217,.4); }
@@ -114,6 +121,15 @@ header { display: flex; align-items: flex-end; justify-content: space-between; p
 .list-name-block { min-width: 0; flex: 1; }
 .list-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.1rem; letter-spacing: 1px; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .list-tag  { font-family: 'DM Mono', monospace; font-size: .62rem; color: var(--muted); }
+
+/* MATCH STRIPS — lista */
+.list-matches { display: flex; gap: 3px; flex-shrink: 0; align-items: center; }
+.list-match-cell { display: flex; flex-direction: column; align-items: center; gap: 2px; width: 20px; }
+.list-match-strip { width: 100%; height: 4px; border-radius: 2px; }
+.list-match-strip.w { background: var(--green); }
+.list-match-strip.l { background: var(--red); }
+.list-match-champ { font-family: 'DM Mono', monospace; font-size: .42rem; color: var(--muted); text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+
 .list-rank-block { text-align: right; flex-shrink: 0; }
 .list-tier { font-family: 'Bebas Neue', sans-serif; font-size: 1rem; letter-spacing: .5px; }
 .list-lp   { font-family: 'DM Mono', monospace; font-size: .62rem; color: var(--muted); }
@@ -146,9 +162,10 @@ header { display: flex; align-items: flex-end; justify-content: space-between; p
 #toast.show { opacity: 1; }
 #toast.err  { border-color: var(--red); color: var(--red); }
 
-@media (max-width: 700px) {
+@media (max-width: 800px) {
   #podium { flex-direction: column; align-items: center; }
-  .podium-card { width: 90% !important; max-width: 300px; order: unset !important; margin-top: 0 !important; margin-bottom: 0 !important; }
+  .podium-card { width: 90% !important; max-width: 320px; order: unset !important; margin-top: 0 !important; margin-bottom: 0 !important; }
+  .list-matches { display: none; }
 }
 </style>
 </head>
@@ -185,9 +202,9 @@ const ICON = id => `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_V}/img/pro
 const TIER_ORDER = { IRON:0,BRONZE:1,SILVER:2,GOLD:3,PLATINUM:4,EMERALD:5,DIAMOND:6,MASTER:7,GRANDMASTER:8,CHALLENGER:9 };
 const RANK_ORDER = { IV:0,III:1,II:2,I:3 };
 
-let players  = [];
-let cdSecs   = 3600;
-let cdTimer  = null;
+let players = [];
+let cdSecs  = 3600;
+let cdTimer = null;
 
 // ── INIT ──────────────────────────────────────────────────────
 (async function init() {
@@ -199,42 +216,37 @@ let cdTimer  = null;
 // ── CARGAR SNAPSHOT ───────────────────────────────────────────
 async function loadSnapshot(force = false) {
   try {
-    const url = "/api/snapshot" + (force ? "?force=1" : "");
-    const res = await fetch(url);
+    const res  = await fetch("/api/snapshot" + (force ? "?force=1" : ""));
     if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
 
-    // Guardar los jugadores
     players = data.players || [];
 
-    // Mostrar hora de los datos
     const hora   = new Date(data.updatedAt).toLocaleTimeString("es-ES");
     const origen = data.cached ? "caché" : "actualizado";
     document.getElementById("last-updated").textContent = `datos de las ${hora} (${origen})`;
 
-    // Sincronizar countdown con el tiempo real que queda en el servidor
     const elapsed = Date.now() - data.updatedAt;
     cdSecs = Math.max(10, Math.floor((3600000 - elapsed) / 1000));
 
     renderEverything();
   } catch (e) {
-    console.error("loadSnapshot error:", e);
+    console.error(e);
     document.getElementById("last-updated").textContent = "error al cargar — reintenta";
     toast("Error al cargar datos", true);
   }
 }
 
-// ── BOTÓN ACTUALIZAR ──────────────────────────────────────────
 async function forceRefresh() {
   const btn = document.getElementById("btn-refresh");
   btn.disabled = true;
-  toast("Actualizando...");
+  toast("Actualizando... (puede tardar ~2 min)");
   await loadSnapshot(true);
   toast("¡Actualizado!");
   btn.disabled = false;
 }
 
-// ── COUNTDOWN (auto-refresh cada hora) ───────────────────────
+// ── COUNTDOWN ─────────────────────────────────────────────────
 function startCountdown() {
   clearInterval(cdTimer);
   cdTimer = setInterval(async () => {
@@ -251,19 +263,45 @@ function startCountdown() {
   }, 1000);
 }
 
-// ── RENDER ────────────────────────────────────────────────────
+// ── HELPERS ───────────────────────────────────────────────────
 function rankScore(p) {
   const s = (p.rankData || []).find(r => r.queueType === "RANKED_SOLO_5x5");
   if (!s) return -1;
   return (TIER_ORDER[s.tier] ?? -1) * 10000 + (RANK_ORDER[s.rank] ?? 0) * 1000 + (s.leaguePoints || 0);
 }
 
-function sorted() {
-  return [...players].sort((a, b) => rankScore(b) - rankScore(a));
+function rankInfo(p) {
+  const s = (p.rankData || []).find(r => r.queueType === "RANKED_SOLO_5x5");
+  if (!s) return { tierCls: "t-unranked", tierStr: "Unranked", lp: "", wr: null, wl: "" };
+  const wr = Math.round(s.wins / (s.wins + s.losses) * 100);
+  return {
+    tierCls: "t-" + s.tier.toLowerCase(),
+    tierStr: s.tier + " " + s.rank,
+    lp:      s.leaguePoints + " LP",
+    wr,
+    wl:      s.wins + "W " + s.losses + "L",
+  };
 }
 
+function wrCls(wr) {
+  if (wr === null) return "";
+  if (wr > 52)  return "wr-w";
+  if (wr >= 49) return "wr-mid";
+  return "wr-l";
+}
+
+function matchStrips(matches, cellCls, stripCls) {
+  if (!matches || !matches.length) return "";
+  return matches.map(m => `
+    <div class="${cellCls}">
+      <div class="${stripCls} ${m.win ? "w" : "l"}"></div>
+      <div class="${cellCls.includes("p-") ? "p-match-champ" : "list-match-champ"}">${m.champ}</div>
+    </div>`).join("");
+}
+
+// ── RENDER ────────────────────────────────────────────────────
 function renderEverything() {
-  const all = sorted();
+  const all = [...players].sort((a, b) => rankScore(b) - rankScore(a));
   renderPodium(all.slice(0, 3));
   const rest    = all.slice(3);
   const listEl  = document.getElementById("list");
@@ -303,26 +341,6 @@ function renderLoadingState() {
     </div>`;
 }
 
-function wrCls(wr) {
-  if (wr === null) return "";
-  if (wr > 52)    return "wr-w";
-  if (wr >= 49)   return "wr-mid";
-  return "wr-l";
-}
-
-function rankInfo(p) {
-  const s = (p.rankData || []).find(r => r.queueType === "RANKED_SOLO_5x5");
-  if (!s) return { tierCls: "t-unranked", tierStr: "Unranked", lp: "", wr: null, wl: "" };
-  const wr = Math.round(s.wins / (s.wins + s.losses) * 100);
-  return {
-    tierCls: "t-" + s.tier.toLowerCase(),
-    tierStr: s.tier + " " + s.rank,
-    lp:      s.leaguePoints + " LP",
-    wr,
-    wl:      s.wins + "W " + s.losses + "L",
-  };
-}
-
 function renderPodium(top3) {
   const podium = document.getElementById("podium");
   podium.innerHTML = "";
@@ -334,6 +352,7 @@ function renderPodium(top3) {
   slots.forEach(({ p, cls, label, delay }) => {
     if (!p) return;
     const r = rankInfo(p);
+    const strips = matchStrips(p.recentMatches, "p-match-cell", "p-match-strip");
     podium.insertAdjacentHTML("beforeend", `
       <div class="podium-card ${cls}${p.inGame ? " in-game" : ""}" style="animation-delay:${delay}">
         <div class="medal">${label}</div>
@@ -348,6 +367,7 @@ function renderPodium(top3) {
         ${r.wr !== null ? `<div class="p-wr ${wrCls(r.wr)}">${r.wr}% WR</div>` : ""}
         <div class="p-wl">${r.wl}</div>
         <div class="p-ingame ${p.inGame ? "live" : "idle"}">${p.inGame ? "● IN GAME" : "· offline"}</div>
+        ${strips ? `<div class="p-matches">${strips}</div>` : ""}
       </div>`);
   });
 }
@@ -359,7 +379,9 @@ function buildRow(p, pos) {
       <div style="font-family:'DM Mono',monospace;font-size:.8rem;color:var(--red)">✕ ${p.gameName}#${p.tagLine}</div>
     </div>`;
 
-  const r = rankInfo(p);
+  const r      = rankInfo(p);
+  const strips = matchStrips(p.recentMatches, "list-match-cell", "list-match-strip");
+
   return `
     <div class="list-row${p.inGame ? " in-game" : ""}">
       <div class="list-pos">${pos}</div>
@@ -371,6 +393,7 @@ function buildRow(p, pos) {
         <div class="list-name">${p.gameName}</div>
         <div class="list-tag">#${p.tagLine}</div>
       </div>
+      ${strips ? `<div class="list-matches">${strips}</div>` : ""}
       <div class="list-rank-block">
         <div class="list-tier ${r.tierCls}">${r.tierStr}</div>
         <div class="list-lp">${r.lp}</div>
@@ -386,7 +409,7 @@ function toast(msg, err = false) {
   t.textContent = msg;
   t.className = "show" + (err ? " err" : "");
   clearTimeout(t._t);
-  t._t = setTimeout(() => t.className = "", 3000);
+  t._t = setTimeout(() => t.className = "", 4000);
 }
 </script>
 </body>
