@@ -203,9 +203,7 @@ a {
 
 <script>
 const DDRAGON_V  = "15.1.1";
-const API_BASE   = "/api/riot";
 const ICON       = id => `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_V}/img/profileicon/${id}.png`;
-const MATCH_DELAY = 1200; // ms entre llamadas de detalle de partida
 
 function opggUrl(p) {
   const name = encodeURIComponent(p.gameName);
@@ -213,15 +211,9 @@ function opggUrl(p) {
   return `https://op.gg/es/lol/summoners/euw/${name}-${tag}`;
 }
 
-// ── localStorage cache para partidas ──────────────────────────
-// matchCache[matchId][puuid] = { win, champ, k, d, a }
-function loadMatchCache() {
-  try { return JSON.parse(localStorage.getItem("awa_mc_v2") || "{}"); } catch { return {}; }
-}
-function saveMatchCache() {
-  try { localStorage.setItem("awa_mc_v2", JSON.stringify(matchCache)); } catch {}
-}
-let matchCache = loadMatchCache();
+// matchCache en memoria de sesión — evita re-pedir dentro de la misma pestaña.
+// El caché real y compartido entre usuarios vive en el servidor (/api/matches).
+let matchCache = {}; // matchId → { [puuid]: { win, champ, k, d, a } }
 
 const TIER_ORDER = { IRON:0,BRONZE:1,SILVER:2,GOLD:3,PLATINUM:4,EMERALD:5,DIAMOND:6,MASTER:7,GRANDMASTER:8,CHALLENGER:9 };
 const RANK_ORDER = { IV:0,III:1,II:2,I:3 };
@@ -235,11 +227,10 @@ let cdTimer = null;
   renderLoadingState();
   await loadSnapshot();
   startCountdown();
-  // Cargar partidas en background sin bloquear la UI
   loadAllMatches();
 })();
 
-// ── SNAPSHOT: rank + live + matchIds ─────────────────────────
+// ── SNAPSHOT ─────────────────────────────────────────────────
 async function loadSnapshot(force = false) {
   try {
     const res  = await fetch("/api/snapshot" + (force ? "?force=1" : ""));
@@ -251,7 +242,6 @@ async function loadSnapshot(force = false) {
     document.getElementById("last-updated").textContent = `datos de las ${hora} (${origen})`;
     const elapsed = Date.now() - data.updatedAt;
     cdSecs = Math.max(10, Math.floor((3600000 - elapsed) / 1000));
-    // Mezclar partidas ya cacheadas antes de renderizar
     injectCachedMatches();
     renderEverything();
   } catch (e) {
@@ -261,7 +251,7 @@ async function loadSnapshot(force = false) {
   }
 }
 
-// Inyecta en cada jugador las partidas que ya tiene el localStorage
+// Inyecta en cada jugador las partidas disponibles en caché de sesión
 function injectCachedMatches() {
   for (const p of players) {
     if (p.error || !p.matchIds) continue;
@@ -272,55 +262,40 @@ function injectCachedMatches() {
 }
 
 // ── CARGAR PARTIDAS EN BACKGROUND ────────────────────────────
-// Solo pide las que no están en matchCache, en serie con delay
+// Una sola llamada al servidor con todos los ids que faltan.
+// El servidor los tiene cacheados — si coincide, respuesta instantánea.
+// Si no, el servidor llama a Riot y devuelve el resultado.
 let matchesLoading = false;
 async function loadAllMatches() {
   if (matchesLoading) return;
   matchesLoading = true;
 
-  let downloaded = 0;
-  // Recoge todos los matchIds únicos que faltan
-  const needed = new Map(); // matchId → Set<puuid>
+  const allIds = new Set();
   for (const p of players) {
     if (p.error || !p.matchIds) continue;
     for (const id of p.matchIds) {
-      if (matchCache[id]?.[p.puuid]) continue; // ya lo tenemos
-      if (!needed.has(id)) needed.set(id, new Set());
-      needed.get(id).add(p.puuid);
+      if (!matchCache[id]) allIds.add(id);
     }
   }
 
-  for (const [id, puuids] of needed) {
+  if (allIds.size > 0) {
     try {
-      const r = await fetch(`${API_BASE}?path=${encodeURIComponent("/match/" + id)}`);
+      const ids = [...allIds].join(",");
+      const r = await fetch(`/api/matches?ids=${encodeURIComponent(ids)}`);
       if (!r.ok) throw new Error("HTTP " + r.status);
-      const m = await r.json();
-      // Guardar perspectiva de cada participante
-      if (!matchCache[id]) matchCache[id] = {};
-      for (const part of m.info.participants) {
-        matchCache[id][part.puuid] = {
-          win:   part.win,
-          champ: part.championName,
-          k:     part.kills,
-          d:     part.deaths,
-          a:     part.assists,
-        };
+      const data = await r.json();
+      for (const [id, perPlayer] of Object.entries(data.matches || {})) {
+        if (perPlayer) matchCache[id] = perPlayer;
       }
-      downloaded++;
-      saveMatchCache();
-      // Re-inyectar y re-renderizar con lo que hay hasta ahora
-      injectCachedMatches();
-      renderEverything();
+      console.log(`[matches] ${data.fetched} nuevas del servidor, ${Object.keys(data.matches||{}).length - data.fetched} desde caché servidor`);
     } catch (err) {
-      console.warn("Match error", id, err.message);
+      console.warn("[matches] Error:", err.message);
     }
-    await sleep(MATCH_DELAY);
+    injectCachedMatches();
+    renderEverything();
   }
 
   matchesLoading = false;
-  if (downloaded > 0) {
-    console.log(`[matches] ${downloaded} nuevas descargadas`);
-  }
 }
 
 // ── BOTÓN ACTUALIZAR ──────────────────────────────────────────
@@ -331,7 +306,6 @@ async function forceRefresh() {
   await loadSnapshot(true);
   toast("¡Actualizado!");
   btn.disabled = false;
-  // Volver a cargar partidas nuevas si las hay
   loadAllMatches();
 }
 
@@ -416,14 +390,11 @@ function renderLoadingState() {
 }
 
 function streakInfo(matches) {
-  // matches ordenadas: index 0 = más antigua, último = más reciente (después de reverse)
-  // Calculamos desde el más reciente (último elemento)
   if (!matches || !matches.length) return null;
-  const rev = [...matches]; // ya están en orden cronológico (antiguo→reciente)
-  const last = rev[rev.length - 1];
+  const last = matches[matches.length - 1];
   let count = 0;
-  for (let i = rev.length - 1; i >= 0; i--) {
-    if (rev[i].win === last.win) count++;
+  for (let i = matches.length - 1; i >= 0; i--) {
+    if (matches[i].win === last.win) count++;
     else break;
   }
   return count >= 3 ? { count, win: last.win } : null;
