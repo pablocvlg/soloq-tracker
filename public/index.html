@@ -63,11 +63,11 @@ header { display: flex; align-items: flex-end; justify-content: space-between; p
 .podium-card.in-game::after { content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 2px; background: linear-gradient(90deg, transparent, var(--blue), transparent); animation: shimmer 2.5s linear infinite; }
 @keyframes shimmer { to{left:160%} }
 
-.podium-card.p1 { width: 300px; order: 2; background: linear-gradient(160deg,#1a1408,#0f0d08 60%,#0a0c10); border: 1px solid rgba(200,155,60,.5); box-shadow: 0 0 40px rgba(200,155,60,.12),0 0 80px rgba(200,155,60,.05); }
+.podium-card.p1 { height: 400px; width: 340px; order: 2; background: linear-gradient(160deg,#1a1408,#0f0d08 60%,#0a0c10); border: 1px solid rgba(200,155,60,.5); box-shadow: 0 0 40px rgba(200,155,60,.12),0 0 80px rgba(200,155,60,.05); }
 .podium-card.p1::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--gold),var(--gold2),var(--gold),transparent); }
-.podium-card.p2 { width: 260px; order: 1; margin-top: 48px; margin-bottom: 48px; background: linear-gradient(160deg,#111518,#0d1117); border: 1px solid rgba(154,176,192,.35); box-shadow: 0 0 30px rgba(154,176,192,.07); }
+.podium-card.p2 { height: 370px; width: 300px; order: 1; margin-top: 48px; margin-bottom: 48px; background: linear-gradient(160deg,#111518,#0d1117); border: 1px solid rgba(154,176,192,.35); box-shadow: 0 0 30px rgba(154,176,192,.07); }
 .podium-card.p2::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--silver),var(--silver2),var(--silver),transparent); }
-.podium-card.p3 { width: 260px; order: 3; margin-top: 48px; margin-bottom: 48px; background: linear-gradient(160deg,#130e08,#0d1117); border: 1px solid rgba(205,127,50,.35); box-shadow: 0 0 30px rgba(205,127,50,.07); }
+.podium-card.p3 { height: 370px; width: 300px; order: 3; margin-top: 48px; margin-bottom: 48px; background: linear-gradient(160deg,#130e08,#0d1117); border: 1px solid rgba(205,127,50,.35); box-shadow: 0 0 30px rgba(205,127,50,.07); }
 .podium-card.p3::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--bronze),var(--bronze2),var(--bronze),transparent); }
 
 .medal { font-family:'Bebas Neue',sans-serif; font-size:.75rem; letter-spacing:2px; padding:3px 10px; border-radius:20px; margin-bottom:16px; }
@@ -165,6 +165,16 @@ header { display: flex; align-items: flex-end; justify-content: space-between; p
   .podium-card { width:90% !important; max-width:320px; order:unset !important; margin-top:0 !important; margin-bottom:0 !important; }
   .list-matches { display:none; }
 }
+
+.podium-card,
+.list-row {
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
 </style>
 </head>
 <body>
@@ -195,10 +205,23 @@ header { display: flex; align-items: flex-end; justify-content: space-between; p
 const DDRAGON_V  = "15.1.1";
 const API_BASE   = "/api/riot";
 const ICON       = id => `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_V}/img/profileicon/${id}.png`;
-// matchCache en memoria del cliente — solo para esta sesión.
-// El verdadero caché compartido vive en el servidor (/api/matches).
-// Evita re-pedir dentro de la misma sesión de navegador.
-let matchCache = {}; // matchId → { [puuid]: {win,champ,k,d,a} }
+const MATCH_DELAY = 1200; // ms entre llamadas de detalle de partida
+
+function opggUrl(p) {
+  const name = encodeURIComponent(p.gameName);
+  const tag  = encodeURIComponent(p.tagLine);
+  return `https://op.gg/es/lol/summoners/euw/${name}-${tag}`;
+}
+
+// ── localStorage cache para partidas ──────────────────────────
+// matchCache[matchId][puuid] = { win, champ, k, d, a }
+function loadMatchCache() {
+  try { return JSON.parse(localStorage.getItem("awa_mc_v2") || "{}"); } catch { return {}; }
+}
+function saveMatchCache() {
+  try { localStorage.setItem("awa_mc_v2", JSON.stringify(matchCache)); } catch {}
+}
+let matchCache = loadMatchCache();
 
 const TIER_ORDER = { IRON:0,BRONZE:1,SILVER:2,GOLD:3,PLATINUM:4,EMERALD:5,DIAMOND:6,MASTER:7,GRANDMASTER:8,CHALLENGER:9 };
 const RANK_ORDER = { IV:0,III:1,II:2,I:3 };
@@ -238,7 +261,7 @@ async function loadSnapshot(force = false) {
   }
 }
 
-// Inyecta en cada jugador las partidas disponibles en caché de sesión
+// Inyecta en cada jugador las partidas que ya tiene el localStorage
 function injectCachedMatches() {
   for (const p of players) {
     if (p.error || !p.matchIds) continue;
@@ -249,49 +272,55 @@ function injectCachedMatches() {
 }
 
 // ── CARGAR PARTIDAS EN BACKGROUND ────────────────────────────
-// Envía al servidor los ids que faltan en la caché local de sesión.
-// El servidor los tiene cacheados en memoria — si coincide, respuesta instantánea.
-// Si no, el servidor llama a Riot (con delay) y devuelve el resultado.
+// Solo pide las que no están en matchCache, en serie con delay
 let matchesLoading = false;
 async function loadAllMatches() {
   if (matchesLoading) return;
   matchesLoading = true;
 
-  // Recoger todos los matchIds únicos que no tenemos aún en sesión
-  const allIds = new Set();
+  let downloaded = 0;
+  // Recoge todos los matchIds únicos que faltan
+  const needed = new Map(); // matchId → Set<puuid>
   for (const p of players) {
     if (p.error || !p.matchIds) continue;
     for (const id of p.matchIds) {
-      if (!matchCache[id]) allIds.add(id);
+      if (matchCache[id]?.[p.puuid]) continue; // ya lo tenemos
+      if (!needed.has(id)) needed.set(id, new Set());
+      needed.get(id).add(p.puuid);
     }
   }
 
-  if (allIds.size === 0) {
-    matchesLoading = false;
-    return;
-  }
-
-  try {
-    // Una sola llamada al servidor con todos los ids que faltan
-    const ids = [...allIds].join(",");
-    const r = await fetch(`/api/matches?ids=${encodeURIComponent(ids)}`);
-    if (!r.ok) throw new Error("HTTP " + r.status);
-    const data = await r.json();
-
-    // Guardar en caché local de sesión
-    for (const [id, perPlayer] of Object.entries(data.matches || {})) {
-      if (perPlayer) matchCache[id] = perPlayer;
+  for (const [id, puuids] of needed) {
+    try {
+      const r = await fetch(`${API_BASE}?path=${encodeURIComponent("/match/" + id)}`);
+      if (!r.ok) throw new Error("HTTP " + r.status);
+      const m = await r.json();
+      // Guardar perspectiva de cada participante
+      if (!matchCache[id]) matchCache[id] = {};
+      for (const part of m.info.participants) {
+        matchCache[id][part.puuid] = {
+          win:   part.win,
+          champ: part.championName,
+          k:     part.kills,
+          d:     part.deaths,
+          a:     part.assists,
+        };
+      }
+      downloaded++;
+      saveMatchCache();
+      // Re-inyectar y re-renderizar con lo que hay hasta ahora
+      injectCachedMatches();
+      renderEverything();
+    } catch (err) {
+      console.warn("Match error", id, err.message);
     }
-
-    console.log(`[matches] ${data.fetched} nuevas del servidor, ${Object.keys(data.matches||{}).length - data.fetched} desde caché servidor`);
-  } catch (err) {
-    console.warn("[matches] Error cargando partidas:", err.message);
+    await sleep(MATCH_DELAY);
   }
 
-  // Re-renderizar con todo lo que tenemos
-  injectCachedMatches();
-  renderEverything();
   matchesLoading = false;
+  if (downloaded > 0) {
+    console.log(`[matches] ${downloaded} nuevas descargadas`);
+  }
 }
 
 // ── BOTÓN ACTUALIZAR ──────────────────────────────────────────
@@ -302,6 +331,7 @@ async function forceRefresh() {
   await loadSnapshot(true);
   toast("¡Actualizado!");
   btn.disabled = false;
+  // Volver a cargar partidas nuevas si las hay
   loadAllMatches();
 }
 
@@ -409,7 +439,7 @@ function podiumStrips(p) {
       <div class="p-tooltip">${m.champ}</div>
     </div>`).join("");
   const streak = streakInfo(ordered);
-  const badge = streak ? `<div class="streak-badge ${streak.win ? "w" : "l"}">🔥 ${streak.count} ${streak.win ? "W" : "L"} streak</div>` : "";
+  const badge = streak ? `<div class="streak-badge ${streak.win ? "w" : "l"}"> ${streak.win ? "🔥" : "❄️"} ${streak.count}${streak.win ? "W" : "L"} streak </div>` : "";
   return `<div class="p-matches">${cells}</div>${badge}`;
 }
 
@@ -439,21 +469,23 @@ function renderPodium(top3) {
     if (!p) return;
     const r = rankInfo(p);
     podium.insertAdjacentHTML("beforeend", `
-      <div class="podium-card ${cls}${p.inGame ? " in-game" : ""}" style="animation-delay:${delay}">
-        <div class="medal">${label}</div>
-        <div class="p-avatar-ring">
-          <img class="p-avatar" src="${ICON(p.profileIconId || 29)}" onerror="this.src='${ICON(29)}'"/>
-          <div class="p-lvl">${p.summonerLevel || "?"}</div>
+      <a href="${opggUrl(p)}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
+        <div class="podium-card ${cls}${p.inGame ? " in-game" : ""}" style="animation-delay:${delay}">
+          <div class="medal">${label}</div>
+          <div class="p-avatar-ring">
+            <img class="p-avatar" src="${ICON(p.profileIconId || 29)}" onerror="this.src='${ICON(29)}'"/>
+            <div class="p-lvl">${p.summonerLevel || "?"}</div>
+          </div>
+          <div class="p-name">${p.gameName}</div>
+          <div class="p-tag">#${p.tagLine}</div>
+          <div class="p-rank ${r.tierCls}">${r.tierStr}</div>
+          <div class="p-lp">${r.lp}</div>
+          ${r.wr !== null ? `<div class="p-wr ${wrCls(r.wr)}">${r.wr}% WR</div>` : ""}
+          <div class="p-wl">${r.wl}</div>
+          <div class="p-ingame ${p.inGame ? "live" : "idle"}">${p.inGame ? "● IN GAME" : "· offline"}</div>
+          ${podiumStrips(p)}
         </div>
-        <div class="p-name">${p.gameName}</div>
-        <div class="p-tag">#${p.tagLine}</div>
-        <div class="p-rank ${r.tierCls}">${r.tierStr}</div>
-        <div class="p-lp">${r.lp}</div>
-        ${r.wr !== null ? `<div class="p-wr ${wrCls(r.wr)}">${r.wr}% WR</div>` : ""}
-        <div class="p-wl">${r.wl}</div>
-        <div class="p-ingame ${p.inGame ? "live" : "idle"}">${p.inGame ? "● IN GAME" : "· offline"}</div>
-        ${podiumStrips(p)}
-      </div>`);
+      </a>`);
   });
 }
 
@@ -465,25 +497,27 @@ function buildRow(p, pos) {
     </div>`;
   const r = rankInfo(p);
   return `
-    <div class="list-row${p.inGame ? " in-game" : ""}">
-      <div class="list-pos">${pos}</div>
-      <div class="list-avatar-wrap">
-        <img class="list-avatar" src="${ICON(p.profileIconId || 29)}" onerror="this.src='${ICON(29)}'"/>
-        <div class="list-lvl">${p.summonerLevel || "?"}</div>
+    <a href="${opggUrl(p)}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
+      <div class="list-row${p.inGame ? " in-game" : ""}">
+        <div class="list-pos">${pos}</div>
+        <div class="list-avatar-wrap">
+          <img class="list-avatar" src="${ICON(p.profileIconId || 29)}" onerror="this.src='${ICON(29)}'"/>
+          <div class="list-lvl">${p.summonerLevel || "?"}</div>
+        </div>
+        <div class="list-name-block">
+          <div class="list-name">${p.gameName}</div>
+          <div class="list-tag">#${p.tagLine}</div>
+        </div>
+        ${listStrips(p)}
+        <div class="list-rank-block">
+          <div class="list-tier ${r.tierCls}">${r.tierStr}</div>
+          <div class="list-lp">${r.lp}</div>
+          ${r.wr !== null ? `<div class="list-wr ${wrCls(r.wr)}">${r.wr}% WR</div>` : ""}
+          <div class="list-wl">${r.wl}</div>
+        </div>
+        <div class="list-ingame ${p.inGame ? "live" : "idle"}">${p.inGame ? "● IN GAME" : "· offline"}</div>
       </div>
-      <div class="list-name-block">
-        <div class="list-name">${p.gameName}</div>
-        <div class="list-tag">#${p.tagLine}</div>
-      </div>
-      ${listStrips(p)}
-      <div class="list-rank-block">
-        <div class="list-tier ${r.tierCls}">${r.tierStr}</div>
-        <div class="list-lp">${r.lp}</div>
-        ${r.wr !== null ? `<div class="list-wr ${wrCls(r.wr)}">${r.wr}% WR</div>` : ""}
-        <div class="list-wl">${r.wl}</div>
-      </div>
-      <div class="list-ingame ${p.inGame ? "live" : "idle"}">${p.inGame ? "● IN GAME" : "· offline"}</div>
-    </div>`;
+    </a>`;
 }
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
