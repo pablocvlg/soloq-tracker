@@ -63,11 +63,11 @@ header { display: flex; align-items: flex-end; justify-content: space-between; p
 .podium-card.in-game::after { content: ''; position: absolute; top: 0; left: -100%; width: 60%; height: 2px; background: linear-gradient(90deg, transparent, var(--blue), transparent); animation: shimmer 2.5s linear infinite; }
 @keyframes shimmer { to{left:160%} }
 
-.podium-card.p1 { width: 340px; order: 2; background: linear-gradient(160deg,#1a1408,#0f0d08 60%,#0a0c10); border: 1px solid rgba(200,155,60,.5); box-shadow: 0 0 40px rgba(200,155,60,.12),0 0 80px rgba(200,155,60,.05); }
+.podium-card.p1 { width: 300px; order: 2; background: linear-gradient(160deg,#1a1408,#0f0d08 60%,#0a0c10); border: 1px solid rgba(200,155,60,.5); box-shadow: 0 0 40px rgba(200,155,60,.12),0 0 80px rgba(200,155,60,.05); }
 .podium-card.p1::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--gold),var(--gold2),var(--gold),transparent); }
-.podium-card.p2 { width: 300px; order: 1; margin-top: 48px; margin-bottom: 48px; background: linear-gradient(160deg,#111518,#0d1117); border: 1px solid rgba(154,176,192,.35); box-shadow: 0 0 30px rgba(154,176,192,.07); }
+.podium-card.p2 { width: 260px; order: 1; margin-top: 48px; margin-bottom: 48px; background: linear-gradient(160deg,#111518,#0d1117); border: 1px solid rgba(154,176,192,.35); box-shadow: 0 0 30px rgba(154,176,192,.07); }
 .podium-card.p2::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--silver),var(--silver2),var(--silver),transparent); }
-.podium-card.p3 { width: 300px; order: 3; margin-top: 48px; margin-bottom: 48px; background: linear-gradient(160deg,#130e08,#0d1117); border: 1px solid rgba(205,127,50,.35); box-shadow: 0 0 30px rgba(205,127,50,.07); }
+.podium-card.p3 { width: 260px; order: 3; margin-top: 48px; margin-bottom: 48px; background: linear-gradient(160deg,#130e08,#0d1117); border: 1px solid rgba(205,127,50,.35); box-shadow: 0 0 30px rgba(205,127,50,.07); }
 .podium-card.p3::before { content:''; position:absolute; top:0; left:0; right:0; height:2px; background:linear-gradient(90deg,transparent,var(--bronze),var(--bronze2),var(--bronze),transparent); }
 
 .medal { font-family:'Bebas Neue',sans-serif; font-size:.75rem; letter-spacing:2px; padding:3px 10px; border-radius:20px; margin-bottom:16px; }
@@ -97,11 +97,17 @@ header { display: flex; align-items: flex-end; justify-content: space-between; p
 
 /* MATCH STRIPS */
 .p-matches { display:flex; gap:4px; margin-top:10px; justify-content:center; flex-wrap:wrap; }
-.p-mcell { display:flex; flex-direction:column; align-items:center; gap:2px; width:22px; }
+.p-mcell { display:flex; flex-direction:column; align-items:center; gap:2px; width:22px; position:relative; cursor:default; }
+.p-mcell:hover .p-tooltip { opacity:1; pointer-events:none; }
+.p-tooltip { position:absolute; bottom:calc(100% + 5px); left:50%; transform:translateX(-50%); background:var(--bg3); border:1px solid var(--border); color:var(--text); font-family:'DM Mono',monospace; font-size:.6rem; padding:3px 7px; border-radius:5px; white-space:nowrap; opacity:0; transition:opacity .15s; z-index:10; pointer-events:none; }
 .p-mstrip { width:100%; height:4px; border-radius:2px; }
 .p-mstrip.w { background:var(--green); }
 .p-mstrip.l { background:var(--red); }
 .p-mchamp { font-family:'DM Mono',monospace; font-size:.42rem; color:var(--muted); text-align:center; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; width:100%; }
+/* Streak badge */
+.streak-badge { display:inline-flex; align-items:center; gap:4px; margin-top:8px; font-family:'DM Mono',monospace; font-size:.58rem; padding:2px 8px; border-radius:20px; }
+.streak-badge.w { background:rgba(74,217,122,.12); color:var(--green); border:1px solid rgba(74,217,122,.3); }
+.streak-badge.l { background:rgba(217,83,74,.12); color:var(--red); border:1px solid rgba(217,83,74,.3); }
 
 /* LIST */
 .list-label { font-family:'DM Mono',monospace; font-size:.65rem; text-transform:uppercase; letter-spacing:3px; color:var(--muted); margin-bottom:14px; }
@@ -119,12 +125,17 @@ header { display: flex; align-items: flex-end; justify-content: space-between; p
 .list-name { font-family:'Bebas Neue',sans-serif; font-size:1.1rem; letter-spacing:1px; line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .list-tag  { font-family:'DM Mono',monospace; font-size:.62rem; color:var(--muted); }
 
-.list-matches { display:flex; gap:3px; flex-shrink:0; align-items:center; }
-.list-mcell { display:flex; flex-direction:column; align-items:center; gap:2px; width:20px; }
+.list-matches { display:flex; gap:4px; flex:1; justify-content:center; align-items:center; position:relative; }
+.list-mcell { display:flex; flex-direction:column; align-items:center; gap:2px; width:28px; position:relative; cursor:default; }
+.list-mcell:hover .list-tooltip { opacity:1; }
+.list-tooltip { position:absolute; bottom:calc(100% + 5px); left:50%; transform:translateX(-50%); background:var(--bg3); border:1px solid var(--border); color:var(--text); font-family:'DM Mono',monospace; font-size:.6rem; padding:3px 7px; border-radius:5px; white-space:nowrap; opacity:0; transition:opacity .15s; z-index:10; pointer-events:none; }
 .list-mstrip { width:100%; height:4px; border-radius:2px; }
 .list-mstrip.w { background:var(--green); }
 .list-mstrip.l { background:var(--red); }
-.list-mchamp { font-family:'DM Mono',monospace; font-size:.42rem; color:var(--muted); text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; }
+.list-mchamp { font-family:'DM Mono',monospace; font-size:.48rem; color:var(--muted); text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; }
+.list-streak { font-family:'DM Mono',monospace; font-size:.55rem; padding:1px 6px; border-radius:20px; flex-shrink:0; white-space:nowrap; }
+.list-streak.w { background:rgba(74,217,122,.12); color:var(--green); border:1px solid rgba(74,217,122,.3); }
+.list-streak.l { background:rgba(217,83,74,.12); color:var(--red); border:1px solid rgba(217,83,74,.3); }
 
 .list-rank-block { text-align:right; flex-shrink:0; }
 .list-tier { font-family:'Bebas Neue',sans-serif; font-size:1rem; letter-spacing:.5px; }
@@ -388,24 +399,46 @@ function renderLoadingState() {
     </div>`;
 }
 
+function streakInfo(matches) {
+  // matches ordenadas: index 0 = más antigua, último = más reciente (después de reverse)
+  // Calculamos desde el más reciente (último elemento)
+  if (!matches || !matches.length) return null;
+  const rev = [...matches]; // ya están en orden cronológico (antiguo→reciente)
+  const last = rev[rev.length - 1];
+  let count = 0;
+  for (let i = rev.length - 1; i >= 0; i--) {
+    if (rev[i].win === last.win) count++;
+    else break;
+  }
+  return count >= 3 ? { count, win: last.win } : null;
+}
+
 function podiumStrips(p) {
   if (!p.recentMatches?.length) return "";
-  const cells = p.recentMatches.map(m => `
+  const ordered = [...p.recentMatches].reverse(); // antiguo→reciente
+  const cells = ordered.map(m => `
     <div class="p-mcell">
       <div class="p-mstrip ${m.win ? "w" : "l"}"></div>
       <div class="p-mchamp">${m.champ}</div>
+      <div class="p-tooltip">${m.champ}</div>
     </div>`).join("");
-  return `<div class="p-matches">${cells}</div>`;
+  const streak = streakInfo(ordered);
+  const badge = streak ? `<div class="streak-badge ${streak.win ? "w" : "l"}">🔥 ${streak.count} ${streak.win ? "W" : "L"} streak</div>` : "";
+  return `<div class="p-matches">${cells}</div>${badge}`;
 }
 
 function listStrips(p) {
   if (!p.recentMatches?.length) return "";
-  const cells = p.recentMatches.map(m => `
+  const ordered = [...p.recentMatches].reverse(); // antiguo→reciente
+  const cells = ordered.map(m => `
     <div class="list-mcell">
       <div class="list-mstrip ${m.win ? "w" : "l"}"></div>
       <div class="list-mchamp">${m.champ}</div>
+      <div class="list-tooltip">${m.champ}</div>
     </div>`).join("");
-  return `<div class="list-matches">${cells}</div>`;
+  const streak = streakInfo(ordered);
+  const badge = streak ? `<span class="list-streak ${streak.win ? "w" : "l"}">🔥${streak.count}${streak.win ? "W" : "L"}</span>` : "";
+  return `<div class="list-matches">${cells}${badge}</div>`;
 }
 
 function renderPodium(top3) {
