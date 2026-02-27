@@ -197,6 +197,12 @@ const API_BASE   = "/api/riot";
 const ICON       = id => `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_V}/img/profileicon/${id}.png`;
 const MATCH_DELAY = 1200; // ms entre llamadas de detalle de partida
 
+function opggUrl(p) {
+  const name = encodeURIComponent(p.gameName);
+  const tag  = encodeURIComponent(p.tagLine);
+  return `https://op.gg/es/lol/summoners/euw/${name}-${tag}`;
+}
+
 // ── localStorage cache para partidas ──────────────────────────
 // matchCache[matchId][puuid] = { win, champ, k, d, a }
 function loadMatchCache() {
@@ -453,21 +459,23 @@ function renderPodium(top3) {
     if (!p) return;
     const r = rankInfo(p);
     podium.insertAdjacentHTML("beforeend", `
-      <div class="podium-card ${cls}${p.inGame ? " in-game" : ""}" style="animation-delay:${delay}">
-        <div class="medal">${label}</div>
-        <div class="p-avatar-ring">
-          <img class="p-avatar" src="${ICON(p.profileIconId || 29)}" onerror="this.src='${ICON(29)}'"/>
-          <div class="p-lvl">${p.summonerLevel || "?"}</div>
+      <a href="${opggUrl(p)}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
+        <div class="podium-card ${cls}${p.inGame ? " in-game" : ""}" style="animation-delay:${delay}">
+          <div class="medal">${label}</div>
+          <div class="p-avatar-ring">
+            <img class="p-avatar" src="${ICON(p.profileIconId || 29)}" onerror="this.src='${ICON(29)}'"/>
+            <div class="p-lvl">${p.summonerLevel || "?"}</div>
+          </div>
+          <div class="p-name">${p.gameName}</div>
+          <div class="p-tag">#${p.tagLine}</div>
+          <div class="p-rank ${r.tierCls}">${r.tierStr}</div>
+          <div class="p-lp">${r.lp}</div>
+          ${r.wr !== null ? `<div class="p-wr ${wrCls(r.wr)}">${r.wr}% WR</div>` : ""}
+          <div class="p-wl">${r.wl}</div>
+          <div class="p-ingame ${p.inGame ? "live" : "idle"}">${p.inGame ? "● IN GAME" : "· offline"}</div>
+          ${podiumStrips(p)}
         </div>
-        <div class="p-name">${p.gameName}</div>
-        <div class="p-tag">#${p.tagLine}</div>
-        <div class="p-rank ${r.tierCls}">${r.tierStr}</div>
-        <div class="p-lp">${r.lp}</div>
-        ${r.wr !== null ? `<div class="p-wr ${wrCls(r.wr)}">${r.wr}% WR</div>` : ""}
-        <div class="p-wl">${r.wl}</div>
-        <div class="p-ingame ${p.inGame ? "live" : "idle"}">${p.inGame ? "● IN GAME" : "· offline"}</div>
-        ${podiumStrips(p)}
-      </div>`);
+      </a>`);
   });
 }
 
@@ -479,25 +487,27 @@ function buildRow(p, pos) {
     </div>`;
   const r = rankInfo(p);
   return `
-    <div class="list-row${p.inGame ? " in-game" : ""}">
-      <div class="list-pos">${pos}</div>
-      <div class="list-avatar-wrap">
-        <img class="list-avatar" src="${ICON(p.profileIconId || 29)}" onerror="this.src='${ICON(29)}'"/>
-        <div class="list-lvl">${p.summonerLevel || "?"}</div>
+    <a href="${opggUrl(p)}" target="_blank" rel="noopener noreferrer" style="text-decoration:none;">
+      <div class="list-row${p.inGame ? " in-game" : ""}">
+        <div class="list-pos">${pos}</div>
+        <div class="list-avatar-wrap">
+          <img class="list-avatar" src="${ICON(p.profileIconId || 29)}" onerror="this.src='${ICON(29)}'"/>
+          <div class="list-lvl">${p.summonerLevel || "?"}</div>
+        </div>
+        <div class="list-name-block">
+          <div class="list-name">${p.gameName}</div>
+          <div class="list-tag">#${p.tagLine}</div>
+        </div>
+        ${listStrips(p)}
+        <div class="list-rank-block">
+          <div class="list-tier ${r.tierCls}">${r.tierStr}</div>
+          <div class="list-lp">${r.lp}</div>
+          ${r.wr !== null ? `<div class="list-wr ${wrCls(r.wr)}">${r.wr}% WR</div>` : ""}
+          <div class="list-wl">${r.wl}</div>
+        </div>
+        <div class="list-ingame ${p.inGame ? "live" : "idle"}">${p.inGame ? "● IN GAME" : "· offline"}</div>
       </div>
-      <div class="list-name-block">
-        <div class="list-name">${p.gameName}</div>
-        <div class="list-tag">#${p.tagLine}</div>
-      </div>
-      ${listStrips(p)}
-      <div class="list-rank-block">
-        <div class="list-tier ${r.tierCls}">${r.tierStr}</div>
-        <div class="list-lp">${r.lp}</div>
-        ${r.wr !== null ? `<div class="list-wr ${wrCls(r.wr)}">${r.wr}% WR</div>` : ""}
-        <div class="list-wl">${r.wl}</div>
-      </div>
-      <div class="list-ingame ${p.inGame ? "live" : "idle"}">${p.inGame ? "● IN GAME" : "· offline"}</div>
-    </div>`;
+    </a>`;
 }
 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
