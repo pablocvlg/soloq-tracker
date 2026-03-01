@@ -314,7 +314,7 @@ function renderWeekly(weekly) {
 
   document.getElementById("chart-games").innerHTML = byGames.map(p=>{
     const pct=Math.round(p.gamesPlayed/maxGames*100);
-    return bar(p.gameName, pct, "var(--blue)", p.gamesPlayed+"g", "blue");
+    return bar(p.gameName, pct, "var(--blue)", p.gamesPlayed, "blue");
   }).join("");
 
   document.getElementById("chart-wr").innerHTML = byWr.length
