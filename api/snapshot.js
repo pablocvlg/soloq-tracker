@@ -11,7 +11,7 @@ const { createClient } = require("@supabase/supabase-js");
 
 const ROUTING    = "europe.api.riotgames.com";
 const EUW        = "euw1.api.riotgames.com";
-const DELAY_MS   = 350;
+const DELAY_MS   = 1200;
 const MAX_MATCHES = 10;
 
 const PLAYERS = [
