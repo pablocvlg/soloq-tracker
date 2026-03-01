@@ -89,9 +89,10 @@ module.exports = async function handler(req, res) {
           .select("puuid, game_name, tag_line, tier, rank, lp, wins, losses");
 
         // Earliest rank_history record per player from within the last 7 days
+        // Used only for LP gain calculation
         const { data: histRows } = await supabase
           .from("rank_history")
-          .select("puuid, score, wins, losses, recorded_at")
+          .select("puuid, score, recorded_at")
           .gte("recorded_at", weekAgo)
           .order("recorded_at", { ascending: true });
 
@@ -100,18 +101,30 @@ module.exports = async function handler(req, res) {
           if (!oldByPuuid[row.puuid]) oldByPuuid[row.puuid] = row;
         }
 
+        // Count actual games played in the last 7 days from player_matches
+        const { data: recentMatches } = await supabase
+          .from("player_matches")
+          .select("puuid, win")
+          .gte("played_at", weekAgo);
+
+        const matchStatsByPuuid = {};
+        for (const m of recentMatches || []) {
+          if (!matchStatsByPuuid[m.puuid]) matchStatsByPuuid[m.puuid] = { wins: 0, losses: 0 };
+          if (m.win) matchStatsByPuuid[m.puuid].wins++;
+          else matchStatsByPuuid[m.puuid].losses++;
+        }
+
         const weekly = (current || []).map(p => {
           const prev      = oldByPuuid[p.puuid];
           const nowScore  = rankScore(p.tier, p.rank, p.lp);
           const prevScore = prev ? prev.score : nowScore;
           const lpGain    = nowScore - prevScore;
-          const winsNow   = p.wins  || 0;
-          const lossNow   = p.losses || 0;
-          const winsPrev  = prev?.wins  ?? winsNow;
-          const lossPrev  = prev?.losses ?? lossNow;
-          const wWins     = Math.max(0, winsNow  - winsPrev);
-          const wLosses   = Math.max(0, lossNow  - lossPrev);
-          const wPlayed   = wWins + wLosses;
+
+          // Games played counted directly from match history
+          const mStats  = matchStatsByPuuid[p.puuid] || { wins: 0, losses: 0 };
+          const wWins   = mStats.wins;
+          const wLosses = mStats.losses;
+          const wPlayed = wWins + wLosses;
 
           return {
             puuid:       p.puuid,
@@ -143,14 +156,14 @@ module.exports = async function handler(req, res) {
         const todayPos = {};
         todaySorted.forEach((p, i) => { todayPos[p.puuid] = i + 1; });
 
-        // Get the most recent rank_history entries from 20–28 hours ago
-        const t28 = new Date(Date.now() - 28 * 60 * 60 * 1000).toISOString();
-        const t20 = new Date(Date.now() - 20 * 60 * 60 * 1000).toISOString();
+        // Get the most recent rank_history entries from 45-75 minutes ago
+        const t75 = new Date(Date.now() - 75 * 60 * 1000).toISOString();
+        const t45 = new Date(Date.now() - 45 * 60 * 1000).toISOString();
         const { data: yesterday } = await supabase
           .from("rank_history")
           .select("puuid, score")
-          .gte("recorded_at", t28)
-          .lte("recorded_at", t20)
+          .gte("recorded_at", t75)
+          .lte("recorded_at", t45)
           .order("recorded_at", { ascending: false });
 
         if (!yesterday?.length) {
