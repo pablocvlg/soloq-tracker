@@ -126,7 +126,7 @@ header { display:flex; align-items:flex-end; justify-content:space-between; padd
 .tier-label-item.zone-master   { color:#d080ff; }
 
 /* ── STATS GRID ───────────────────────────────────── */
-.stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.stats-grid { display:grid; grid-template-columns:1fr 1fr 1fr; gap:20px; }
 .stat-card { background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:24px; }
 .stat-card-title { font-family:'DM Mono',monospace; font-size:.65rem; text-transform:uppercase; letter-spacing:2px; color:var(--muted); margin-bottom:18px; }
 
@@ -203,10 +203,6 @@ header { display:flex; align-items:flex-end; justify-content:space-between; padd
       <div class="stat-card-title">WR esta semana 🎯</div>
       <div id="chart-wr"><div class="empty-state skel" style="height:200px"></div></div>
     </div>
-    <div class="stat-card">
-      <div class="stat-card-title">Victorias esta semana 🏅</div>
-      <div id="chart-wins"><div class="empty-state skel" style="height:200px"></div></div>
-    </div>
   </div>
 </div>
 
@@ -215,15 +211,15 @@ const DDRAGON_V = "15.1.1";
 const ICON = id => `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_V}/img/profileicon/${id}.png`;
 const TIER_ORDER = {IRON:0,BRONZE:1,SILVER:2,GOLD:3,PLATINUM:4,EMERALD:5,DIAMOND:6,MASTER:7};
 const RANK_ORDER = {IV:0,III:1,II:2,I:3};
-const MAX_SCORE  = 3200; // Master 400LP = displayed maximum
+const MAX_SCORE  = 3500; // Master 700LP = displayed maximum
 
 /* Score: each tier = 400 pts, each division = 100 pts, LP direct
    Iron IV 0LP = 0, Master 700LP = 3500 */
 function specScore(tier, rank, lp) {
   if (!tier) return 0;
-  // Master has no divisions; just 2800 + LP (capped at 400 for display)
+  // Master has no divisions; just 2800 + LP (capped at 700 for display)
   if (tier === "MASTER" || tier === "GRANDMASTER" || tier === "CHALLENGER") {
-    return Math.min(2800 + Math.min(lp||0, 400), MAX_SCORE);
+    return Math.min(2800 + Math.min(lp||0, 700), MAX_SCORE);
   }
   const t = TIER_ORDER[tier] ?? 0;
   const r = RANK_ORDER[rank] ?? 0;
@@ -297,7 +293,7 @@ function tierColor(tier) {
 /* ── WEEKLY CHARTS ───────────────────────────────── */
 function renderWeekly(weekly) {
   if (!weekly.length) {
-    ["chart-lp","chart-games","chart-wr","chart-wins"].forEach(id=>{
+    ["chart-lp","chart-games","chart-wr"].forEach(id=>{
       document.getElementById(id).innerHTML=`<div class="empty-state">Sin datos</div>`;
     });
     return;
@@ -306,11 +302,9 @@ function renderWeekly(weekly) {
   const byLp    = [...weekly].sort((a,b)=>b.lpGain-a.lpGain);
   const byGames = [...weekly].sort((a,b)=>b.gamesPlayed-a.gamesPlayed);
   const byWr    = [...weekly].filter(p=>p.gamesPlayed>=3).sort((a,b)=>(b.weekWr||0)-(a.weekWr||0));
-  const byWins  = [...weekly].sort((a,b)=>b.weekWins-a.weekWins);
 
   const maxLpAbs = Math.max(...weekly.map(p=>Math.abs(p.lpGain)),1);
   const maxGames = Math.max(...weekly.map(p=>p.gamesPlayed),1);
-  const maxWins  = Math.max(...weekly.map(p=>p.weekWins),1);
 
   document.getElementById("chart-lp").innerHTML = byLp.map(p=>{
     const v=p.lpGain, cls=v>0?"pos":v<0?"neg":"zero", pct=Math.round(Math.abs(v)/maxLpAbs*100);
@@ -330,11 +324,6 @@ function renderWeekly(weekly) {
         return bar(p.gameName, wr, color, wr+"%", cls);
       }).join("")
     : `<div class="empty-state">Mínimo 3 partidas</div>`;
-
-  document.getElementById("chart-wins").innerHTML = byWins.map(p=>{
-    const pct=Math.round(p.weekWins/maxWins*100);
-    return bar(p.gameName, pct, "var(--green)", p.weekWins+"W", "pos");
-  }).join("");
 }
 
 function bar(label, pct, color, val, valCls) {

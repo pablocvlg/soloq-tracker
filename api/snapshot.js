@@ -237,11 +237,13 @@ async function buildSnapshot(apiKey, supabase) {
         console.log(`[snapshot] ${acc.gameName}: rank changed (${prevScore} → ${newScore})`);
       }
 
-      // 5. Match list — ONLY fetch if wins+losses count changed (new game played)
+      // 5. Match list — fetch if new games played OR player has fewer than 10 matches stored
       const prevWins   = prev?.wins   ?? playerRow.wins;
       const prevLosses = prev?.losses ?? playerRow.losses;
       const gamesPlayed = (playerRow.wins + playerRow.losses) - (prevWins + prevLosses);
-      const hasNewGames = gamesPlayed > 0 || !prev; // always fetch on first run
+      const storedMatchCount = (latestMatches || []).filter(m => m.puuid === acc.puuid).length;
+      const needsBackfill = storedMatchCount < MAX_MATCHES;
+      const hasNewGames = gamesPlayed > 0 || !prev || needsBackfill;
 
       if (hasNewGames) {
         const matchIds = await riotGet(ROUTING,
