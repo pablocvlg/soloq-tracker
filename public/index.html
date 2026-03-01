@@ -119,7 +119,7 @@ header { display:flex; align-items:flex-end; justify-content:space-between; padd
 .list-tag  { font-family:'DM Mono',monospace; font-size:.67rem; color:var(--muted); }
 
 /* Match strips */
-.list-matches-wrap { display:flex; flex-direction:column; align-items:center; gap:4px; flex:1; }
+.list-matches-wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; flex:2; }
 .list-matches { display:flex; gap:4px; justify-content:center; }
 .list-streak-wrap { height:15px; display:flex; align-items:center; justify-content:center; }
 .list-mcell { display:flex; flex-direction:column; align-items:center; gap:2px; width:30px; position:relative; cursor:default; }
@@ -134,8 +134,9 @@ header { display:flex; align-items:flex-end; justify-content:space-between; padd
 .list-streak.l { background:rgba(217,83,74,.12); color:var(--red); border:1px solid rgba(217,83,74,.3); }
 
 /* Rank */
-.list-rank-block { text-align:right; flex-shrink:0; min-width:130px; }
+.list-rank-block { text-align:right; flex-shrink:0; min-width:160px; }
 .list-tier { font-family:'DM Mono',monospace; font-size:.78rem; letter-spacing:.3px; white-space:nowrap; }
+.list-wr-wl { display:flex; gap:8px; justify-content:flex-end; align-items:baseline; margin-top:2px; }
 .list-wr   { font-family:'DM Mono',monospace; font-size:.7rem; }
 .list-wl   { font-family:'DM Mono',monospace; font-size:.65rem; color:var(--muted); }
 .list-ingame { font-family:'DM Mono',monospace; font-size:.65rem; padding:4px 10px; border-radius:20px; flex-shrink:0; white-space:nowrap; }
@@ -215,7 +216,7 @@ async function loadPlayers(force=false) {
     const hora = new Date(data.updatedAt).toLocaleTimeString("es-ES");
     document.getElementById("last-updated").textContent =
       `datos de las ${hora} (${data.cached!==false?"caché":"actualizado"})`;
-    cdSecs = Math.max(10, Math.floor((3600000 - (Date.now() - (data.updatedAt||Date.now()))) / 1000));
+    cdSecs = Math.max(10, Math.floor((900000 - (Date.now() - (data.updatedAt||Date.now()))) / 1000));
   } catch(e) {
     console.error(e);
     document.getElementById("last-updated").textContent = "error al cargar — reintenta";
@@ -355,8 +356,10 @@ function renderList() {
         ${listStrips(p)}
         <div class="list-rank-block">
           <div class="list-tier ${r.tierCls}">${r.tierLp}</div>
-          ${r.wr!==null?`<div class="list-wr ${wrCls(r.wr)}">${r.wr}% WR</div>`:""}
-          <div class="list-wl">${r.wl}</div>
+          <div class="list-wr-wl">
+            ${r.wr!==null?`<div class="list-wr ${wrCls(r.wr)}">${r.wr}% WR</div>`:""}
+            <div class="list-wl">${r.wl}</div>
+          </div>
         </div>
         <div class="list-ingame ${p.inGame?"live":"idle"}">${p.inGame?"● IN GAME":"· offline"}</div>
       </a>`);
