@@ -265,7 +265,7 @@ async function loadPlayers(force=false) {
     players = data.players || [];
     const hora = new Date(data.updatedAt).toLocaleTimeString("es-ES");
     document.getElementById("last-updated").textContent =
-      `datos de las ${hora} (${data.cached!==false?"caché":"actualizado"})`;
+      `datos de las ${hora}`;
     cdSecs = Math.max(600, Math.floor((600000 - (Date.now() - (data.updatedAt||Date.now()))) / 1000));
   } catch(e) {
     console.error(e);
