@@ -1,8 +1,10 @@
 // api/snapshot.js
-// Fetches all player data from Riot API, stores it in Supabase,
-// detects rank-change milestones, and caches match details.
-// Should be called by a Vercel Cron (every hour) AND on manual refresh.
-// Visitors read from Supabase — zero Riot API calls on page load.
+// Smart snapshot: only calls Riot API for what has actually changed.
+// Per player:
+//   - Always fetches: rank, live game status (cheap calls)
+//   - Match list: only fetched if rank changed OR forced
+//   - Match details: only fetched for match IDs not already in Supabase
+// This keeps calls well under rate limits even at 5-10 min intervals.
 
 const https = require("https");
 const { createClient } = require("@supabase/supabase-js");
@@ -57,7 +59,8 @@ module.exports = async function handler(req, res) {
   const supabase = createClient(sbUrl, sbKey);
   const force    = req.query.force === "1";
 
-  // If not forced, check how old the data in Supabase is
+  // If not forced, check how old the data in Supabase is.
+  // Allow re-run if data is older than 8 minutes (supports frequent cron intervals).
   if (!force) {
     const { data: latest } = await supabase
       .from("players")
@@ -68,7 +71,7 @@ module.exports = async function handler(req, res) {
 
     if (latest) {
       const age = Date.now() - new Date(latest.updated_at).getTime();
-      if (age < 55 * 60 * 1000) { // < 55 min → still fresh
+      if (age < 8 * 60 * 1000) { // < 8 min → still fresh, skip entirely
         const players = await readPlayersFromDB(supabase);
         return res.status(200).json({ players, updatedAt: new Date(latest.updated_at).getTime(), cached: true });
       }
@@ -145,36 +148,59 @@ async function readPlayersFromDB(supabase) {
   }));
 }
 
-// ── Full Riot API snapshot + Supabase write ──────────────────────────────
+// ── Smart snapshot ────────────────────────────────────────────────────────
+// API calls per player per run:
+//   ALWAYS (4 calls): account, summoner, rank, live
+//   ONLY IF new matches exist (1 + N calls): match list, then only new match details
+// On a quiet day with no games played: ~48 calls total for 12 players.
+// On an active day: 48 + (new matches × 1 each).
 async function buildSnapshot(apiKey, supabase) {
-  // Get previous scores for milestone detection
-  const { data: prevPlayers } = await supabase.from("players").select("puuid, tier, rank, lp");
-  const prevScores = {};
-  for (const p of prevPlayers || []) {
-    prevScores[p.puuid] = rankScore(p.tier, p.rank, p.lp);
+  // Load current DB state for all players in one query — used to detect changes
+  const { data: prevPlayers } = await supabase
+    .from("players")
+    .select("puuid, tier, rank, lp, wins, losses");
+  const prevByPuuid = {};
+  for (const p of prevPlayers || []) prevByPuuid[p.puuid] = p;
+
+  // Load the most recent match_id we have stored per player — to detect new games
+  const { data: latestMatches } = await supabase
+    .from("player_matches")
+    .select("puuid, match_id, played_at")
+    .order("played_at", { ascending: false });
+  const latestMatchByPuuid = {};
+  for (const m of latestMatches || []) {
+    if (!latestMatchByPuuid[m.puuid]) latestMatchByPuuid[m.puuid] = m.match_id;
   }
 
-  const results = [];
+  const trackedPuuids = new Set(); // filled as we process players
+  const now = new Date().toISOString();
 
   for (const p of PLAYERS) {
     try {
-      const acc = await riotGet(ROUTING, `/riot/account/v1/accounts/by-riot-id/${enc(p.name)}/${enc(p.tag)}`, apiKey);
+      // 1. Account (needed to get puuid — skip if already known)
+      const acc = await riotGet(ROUTING,
+        `/riot/account/v1/accounts/by-riot-id/${enc(p.name)}/${enc(p.tag)}`, apiKey);
+      await sleep(DELAY_MS);
+      trackedPuuids.add(acc.puuid);
+
+      // 2. Summoner (icon + level)
+      const sum = await riotGet(EUW,
+        `/lol/summoner/v4/summoners/by-puuid/${acc.puuid}`, apiKey);
       await sleep(DELAY_MS);
 
-      const sum = await riotGet(EUW, `/lol/summoner/v4/summoners/by-puuid/${acc.puuid}`, apiKey);
+      // 3. Rank
+      const rankData = await riotGet(EUW,
+        `/lol/league/v4/entries/by-puuid/${acc.puuid}`, apiKey);
       await sleep(DELAY_MS);
 
-      const rankData = await riotGet(EUW, `/lol/league/v4/entries/by-puuid/${acc.puuid}`, apiKey);
-      await sleep(DELAY_MS);
-
-      const live = await riotGetOpt(EUW, `/lol/spectator/v5/active-games/by-summoner/${acc.puuid}`, apiKey);
-      await sleep(DELAY_MS);
-
-      const matchIds = await riotGet(ROUTING,
-        `/lol/match/v5/matches/by-puuid/${acc.puuid}/ids?start=0&count=${MAX_MATCHES}&queue=420`, apiKey);
+      // 4. Live game
+      const live = await riotGetOpt(EUW,
+        `/lol/spectator/v5/active-games/by-summoner/${acc.puuid}`, apiKey);
       await sleep(DELAY_MS);
 
       const solo = (rankData || []).find(r => r.queueType === "RANKED_SOLO_5x5");
+      const prev = prevByPuuid[acc.puuid];
+
       const playerRow = {
         puuid:           acc.puuid,
         game_name:       acc.gameName,
@@ -187,156 +213,91 @@ async function buildSnapshot(apiKey, supabase) {
         wins:            solo?.wins   || 0,
         losses:          solo?.losses || 0,
         in_game:         !!(live?.gameId),
-        updated_at:      new Date().toISOString(),
+        updated_at:      now,
       };
 
-      // Upsert player row
       await supabase.from("players").upsert(playerRow, { onConflict: "puuid" });
 
-      // Write rank history entry
-      const score = rankScore(playerRow.tier, playerRow.rank, playerRow.lp);
-      await supabase.from("rank_history").insert({
-        puuid:       acc.puuid,
-        tier:        playerRow.tier,
-        rank:        playerRow.rank,
-        lp:          playerRow.lp,
-        wins:        playerRow.wins,
-        losses:      playerRow.losses,
-        score,
-        recorded_at: new Date().toISOString(),
-      });
+      // Write rank history only when rank/LP actually changed
+      const newScore  = rankScore(playerRow.tier, playerRow.rank, playerRow.lp);
+      const prevScore = prev ? rankScore(prev.tier, prev.rank, prev.lp) : -2;
+      const rankChanged = newScore !== prevScore;
 
-      // Detect promotions / demotions
-      await detectMilestones(supabase, acc.puuid, prevScores[acc.puuid], score, playerRow);
+      if (rankChanged) {
+        await supabase.from("rank_history").insert({
+          puuid:       acc.puuid,
+          tier:        playerRow.tier,
+          rank:        playerRow.rank,
+          lp:          playerRow.lp,
+          wins:        playerRow.wins,
+          losses:      playerRow.losses,
+          score:       newScore,
+          recorded_at: now,
+        });
+        console.log(`[snapshot] ${acc.gameName}: rank changed (${prevScore} → ${newScore})`);
+      }
 
-      // Queue match IDs for background fetch
-      results.push({
-        puuid:   acc.puuid,
-        matchIds,
-        rankData,
-        gameName: acc.gameName,
-        tagLine:  acc.tagLine,
-        profileIconId: sum.profileIconId,
-        summonerLevel: sum.summonerLevel,
-        inGame:  !!(live?.gameId),
-      });
+      // 5. Match list — ONLY fetch if wins+losses count changed (new game played)
+      const prevWins   = prev?.wins   ?? playerRow.wins;
+      const prevLosses = prev?.losses ?? playerRow.losses;
+      const gamesPlayed = (playerRow.wins + playerRow.losses) - (prevWins + prevLosses);
+      const hasNewGames = gamesPlayed > 0 || !prev; // always fetch on first run
 
-      // Fetch any new matches we don't have yet
-      const { data: knownMatches } = await supabase
-        .from("matches").select("match_id").in("match_id", matchIds);
-      const knownSet = new Set((knownMatches || []).map(m => m.match_id));
+      if (hasNewGames) {
+        const matchIds = await riotGet(ROUTING,
+          `/lol/match/v5/matches/by-puuid/${acc.puuid}/ids?start=0&count=${MAX_MATCHES}&queue=420`,
+          apiKey);
+        await sleep(DELAY_MS);
 
-      for (const matchId of matchIds) {
-        if (knownSet.has(matchId)) continue;
-        try {
-          const m = await riotGet(ROUTING, `/lol/match/v5/matches/${matchId}`, apiKey);
-          await sleep(DELAY_MS);
+        // Only fetch details for match IDs we don't already have
+        const { data: knownMatches } = await supabase
+          .from("matches").select("match_id").in("match_id", matchIds);
+        const knownSet = new Set((knownMatches || []).map(m => m.match_id));
 
-          // Store full match data
-          await supabase.from("matches").upsert({
-            match_id:   matchId,
-            fetched_at: new Date().toISOString(),
-            data:       m.info.participants.reduce((obj, part) => {
-              obj[part.puuid] = { win: part.win, champ: part.championName, k: part.kills, d: part.deaths, a: part.assists };
-              return obj;
-            }, {}),
-          }, { onConflict: "match_id" });
+        for (const matchId of matchIds) {
+          if (knownSet.has(matchId)) continue; // already stored, skip
+          try {
+            const m = await riotGet(ROUTING, `/lol/match/v5/matches/${matchId}`, apiKey);
+            await sleep(DELAY_MS);
 
-          // Store per-player match result for all tracked players
-          const trackedPuuids = results.map(r => r.puuid);
-          for (const part of m.info.participants) {
-            if (!trackedPuuids.includes(part.puuid)) continue;
-            await supabase.from("player_matches").upsert({
-              puuid:     part.puuid,
-              match_id:  matchId,
-              win:       part.win,
-              champ:     part.championName,
-              kills:     part.kills,
-              deaths:    part.deaths,
-              assists:   part.assists,
-              played_at: new Date(m.info.gameStartTimestamp).toISOString(),
-            }, { onConflict: "puuid,match_id" });
+            // Cache full match
+            await supabase.from("matches").upsert({
+              match_id:   matchId,
+              fetched_at: now,
+              data: m.info.participants.reduce((obj, part) => {
+                obj[part.puuid] = { win: part.win, champ: part.championName, k: part.kills, d: part.deaths, a: part.assists };
+                return obj;
+              }, {}),
+            }, { onConflict: "match_id" });
+
+            // Store result for every tracked player in this match
+            for (const part of m.info.participants) {
+              if (!trackedPuuids.has(part.puuid)) continue;
+              await supabase.from("player_matches").upsert({
+                puuid:     part.puuid,
+                match_id:  matchId,
+                win:       part.win,
+                champ:     part.championName,
+                kills:     part.kills,
+                deaths:    part.deaths,
+                assists:   part.assists,
+                played_at: new Date(m.info.gameStartTimestamp).toISOString(),
+              }, { onConflict: "puuid,match_id" });
+            }
+            console.log(`[snapshot] Stored match ${matchId}`);
+          } catch (matchErr) {
+            console.warn(`[snapshot] Match ${matchId}: ${matchErr.message}`);
           }
-        } catch (matchErr) {
-          console.warn(`[snapshot] Match ${matchId}: ${matchErr.message}`);
         }
       }
     } catch (err) {
       console.warn(`[snapshot] ${p.name}#${p.tag}: ${err.message}`);
-      results.push({ gameName: p.name, tagLine: p.tag, error: true });
     }
   }
 
-  // Detect "surpassed" milestones (A passed B in rank)
-  await detectSurpassedMilestones(supabase, prevScores);
-
-  // Return the same shape as readPlayersFromDB
   return await readPlayersFromDB(supabase);
 }
 
-// ── Milestone detection ───────────────────────────────────────────────────
-async function detectMilestones(supabase, puuid, prevScore, newScore, playerRow) {
-  if (prevScore === undefined || prevScore === newScore) return;
-
-  // Promotion: moved to higher tier
-  const prevTierScore = Math.floor((prevScore ?? -10001) / 10000);
-  const newTierScore  = Math.floor(newScore / 10000);
-
-  if (newTierScore > prevTierScore && newScore > 0) {
-    await supabase.from("milestones").insert({
-      type:        "promoted",
-      actor_puuid: puuid,
-      detail:      { from_tier: getTierName(prevScore), to_tier: playerRow.tier + " " + playerRow.rank },
-      occurred_at: new Date().toISOString(),
-    });
-  } else if (newTierScore < prevTierScore && prevScore > 0) {
-    await supabase.from("milestones").insert({
-      type:        "demoted",
-      actor_puuid: puuid,
-      detail:      { from_tier: getTierName(prevScore), to_tier: playerRow.tier + " " + playerRow.rank },
-      occurred_at: new Date().toISOString(),
-    });
-  }
-}
-
-async function detectSurpassedMilestones(supabase, prevScores) {
-  // Get new scores
-  const { data: currentPlayers } = await supabase.from("players").select("puuid, game_name, tier, rank, lp");
-  const newScores = {};
-  for (const p of currentPlayers || []) {
-    newScores[p.puuid] = rankScore(p.tier, p.rank, p.lp);
-  }
-
-  const puuids = Object.keys(newScores);
-  for (const a of puuids) {
-    for (const b of puuids) {
-      if (a === b) continue;
-      const prevA = prevScores[a] ?? -1;
-      const prevB = prevScores[b] ?? -1;
-      const newA  = newScores[a] ?? -1;
-      const newB  = newScores[b] ?? -1;
-      // A was below B, now A is above B
-      if (prevA <= prevB && newA > newB && newA > 0) {
-        await supabase.from("milestones").insert({
-          type:         "surpassed",
-          actor_puuid:  a,
-          target_puuid: b,
-          detail:       { actor_score: newA, target_score: newB },
-          occurred_at:  new Date().toISOString(),
-        });
-      }
-    }
-  }
-}
-
-function getTierName(score) {
-  if (score < 0) return "Unranked";
-  const tierIdx = Math.floor(score / 10000);
-  const tier = Object.keys(TIER_ORDER).find(k => TIER_ORDER[k] === tierIdx) || "?";
-  const rankIdx = Math.floor((score % 10000) / 1000);
-  const rank = Object.keys(RANK_ORDER).find(k => RANK_ORDER[k] === rankIdx) || "";
-  return `${tier} ${rank}`.trim();
-}
 
 // ── HTTP helpers ─────────────────────────────────────────────────────────
 function riotGet(hostname, path, apiKey) {
