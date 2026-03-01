@@ -266,7 +266,7 @@ async function loadPlayers(force=false) {
     const hora = new Date(data.updatedAt).toLocaleTimeString("es-ES");
     document.getElementById("last-updated").textContent =
       `datos de las ${hora} (${data.cached!==false?"caché":"actualizado"})`;
-    cdSecs = Math.max(10, Math.floor((600000 - (Date.now() - (data.updatedAt||Date.now()))) / 1000));
+    cdSecs = Math.max(600, Math.floor((600000 - (Date.now() - (data.updatedAt||Date.now()))) / 1000));
   } catch(e) {
     console.error(e);
     document.getElementById("last-updated").textContent = "error al cargar — reintenta";
