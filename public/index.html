@@ -56,12 +56,6 @@ header { display:flex; align-items:flex-end; justify-content:space-between; padd
   border:1px solid rgba(200,155,60,.45); color:var(--gold); background:rgba(200,155,60,.06);
 }
 .btn-nav:hover { background:rgba(200,155,60,.14); border-color:var(--gold2); color:var(--gold2); }
-.btn-refresh {
-  background:none; border:1px solid var(--border); color:var(--muted);
-  font-family:'DM Mono',monospace; font-size:.78rem; padding:8px 16px; border-radius:6px; cursor:pointer; transition:all .2s;
-}
-.btn-refresh:hover { border-color:var(--gold); color:var(--gold); }
-.btn-refresh:disabled { opacity:.35; cursor:not-allowed; }
 
 /* STATUS */
 #status-bar { font-family:'DM Mono',monospace; font-size:.75rem; color:var(--muted); display:flex; align-items:center; gap:10px; margin-bottom:24px; }
@@ -156,6 +150,37 @@ header { display:flex; align-items:flex-end; justify-content:space-between; padd
 #toast.show { opacity:1; }
 #toast.err  { border-color:var(--red); color:var(--red); }
 
+/* SPECTRUM */
+.spectrum-wrap { background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:32px 28px 24px; margin-bottom:28px; }
+.spectrum-track-area { position:relative; height:52px; margin-bottom:8px; }
+.spectrum-track { position:absolute; left:0; right:0; top:50%; transform:translateY(-50%); height:9px; border-radius:999px; overflow:hidden; display:flex; }
+.tier-zone { height:100%; flex:1; }
+.tier-zone.zone-iron     { background:linear-gradient(90deg,#4a4a4a,#7a7a7a); }
+.tier-zone.zone-bronze   { background:linear-gradient(90deg,#7a3d0a,#cd7f32); }
+.tier-zone.zone-silver   { background:linear-gradient(90deg,#5a7080,#9ab0c0); }
+.tier-zone.zone-gold     { background:linear-gradient(90deg,#7a5c1a,#c89b3c); }
+.tier-zone.zone-platinum { background:linear-gradient(90deg,#1a7060,#3dc0a0); }
+.tier-zone.zone-emerald  { background:linear-gradient(90deg,#1a7040,#50c878); }
+.tier-zone.zone-diamond  { background:linear-gradient(90deg,#3a50a0,#9ab8ff); }
+.tier-zone.zone-master   { background:linear-gradient(90deg,#6020c0,#d080ff); }
+.spec-player { position:absolute; top:50%; transform:translate(-50%,-50%); display:flex; flex-direction:column; align-items:center; transition:transform .5s cubic-bezier(.34,1.56,.64,1); z-index:2; cursor:default; }
+.spec-player:hover { z-index:10; }
+.spec-player:hover .spec-label { opacity:1; transform:translateY(0); }
+.spec-avatar-ring { width:30px; height:30px; border-radius:50%; padding:2px; box-shadow:0 2px 10px rgba(0,0,0,.5); transition:transform .2s; }
+.spec-player:hover .spec-avatar-ring { transform:scale(1.25); }
+.spec-avatar { width:100%; height:100%; border-radius:50%; object-fit:cover; display:block; }
+.spec-label { position:absolute; bottom:calc(100% + 5px); left:50%; transform:translate(-50%,4px); background:var(--bg3); border:1px solid var(--border); color:var(--text); font-family:'DM Mono',monospace; font-size:.6rem; padding:3px 8px; border-radius:5px; white-space:nowrap; opacity:0; transition:opacity .15s,transform .15s; pointer-events:none; box-shadow:0 4px 12px rgba(0,0,0,.4); }
+.tier-labels { display:flex; }
+.tier-label-item { flex:1; text-align:center; font-family:'DM Mono',monospace; font-size:.58rem; text-transform:uppercase; letter-spacing:.5px; padding-top:4px; }
+.tier-label-item.zone-iron     { color:#9e9e9e; }
+.tier-label-item.zone-bronze   { color:#cd7f32; }
+.tier-label-item.zone-silver   { color:#9ab0c0; }
+.tier-label-item.zone-gold     { color:var(--gold); }
+.tier-label-item.zone-platinum { color:#3dc0a0; }
+.tier-label-item.zone-emerald  { color:#50c878; }
+.tier-label-item.zone-diamond  { color:#9ab8ff; }
+.tier-label-item.zone-master   { color:#d080ff; }
+
 @media(max-width:650px){
   .list-matches-wrap{display:none}
   .list-rank-block{min-width:0}
@@ -174,7 +199,6 @@ header { display:flex; align-items:flex-end; justify-content:space-between; padd
       <div id="countdown">—</div>
       <div class="header-actions">
         <a href="stats.html" class="btn-nav">📊 Stats semanales</a>
-        <button class="btn-refresh" id="btn-refresh" onclick="forceRefresh()">↻ Actualizar</button>
       </div>
     </div>
   </header>
@@ -183,6 +207,31 @@ header { display:flex; align-items:flex-end; justify-content:space-between; padd
     <div class="status-line"></div>
     <span id="last-updated">cargando...</span>
     <div class="status-line"></div>
+  </div>
+
+  <div class="spectrum-wrap">
+    <div class="spectrum-track-area" id="spectrum-track-area">
+      <div class="spectrum-track">
+        <div class="tier-zone zone-iron"></div>
+        <div class="tier-zone zone-bronze"></div>
+        <div class="tier-zone zone-silver"></div>
+        <div class="tier-zone zone-gold"></div>
+        <div class="tier-zone zone-platinum"></div>
+        <div class="tier-zone zone-emerald"></div>
+        <div class="tier-zone zone-diamond"></div>
+        <div class="tier-zone zone-master"></div>
+      </div>
+    </div>
+    <div class="tier-labels">
+      <div class="tier-label-item zone-iron">Iron</div>
+      <div class="tier-label-item zone-bronze">Bronze</div>
+      <div class="tier-label-item zone-silver">Silver</div>
+      <div class="tier-label-item zone-gold">Gold</div>
+      <div class="tier-label-item zone-platinum">Plat</div>
+      <div class="tier-label-item zone-emerald">Emerald</div>
+      <div class="tier-label-item zone-diamond">Diamond</div>
+      <div class="tier-label-item zone-master">Master</div>
+    </div>
   </div>
 
   <div id="list"></div>
@@ -204,6 +253,7 @@ let cdTimer      = null;
   renderSkeleton();
   await Promise.all([loadPlayers(), loadDelta()]);
   renderList();
+  renderSpectrum();
   startCountdown();
 })();
 
@@ -216,7 +266,7 @@ async function loadPlayers(force=false) {
     const hora = new Date(data.updatedAt).toLocaleTimeString("es-ES");
     document.getElementById("last-updated").textContent =
       `datos de las ${hora} (${data.cached!==false?"caché":"actualizado"})`;
-    cdSecs = Math.max(10, Math.floor((900000 - (Date.now() - (data.updatedAt||Date.now()))) / 1000));
+    cdSecs = Math.max(10, Math.floor((600000 - (Date.now() - (data.updatedAt||Date.now()))) / 1000));
   } catch(e) {
     console.error(e);
     document.getElementById("last-updated").textContent = "error al cargar — reintenta";
@@ -234,16 +284,6 @@ async function loadDelta() {
   } catch(e) { console.warn("Delta load failed", e.message); }
 }
 
-async function forceRefresh() {
-  const btn = document.getElementById("btn-refresh");
-  btn.disabled = true;
-  toast("Actualizando desde Riot API...");
-  await loadPlayers(true);
-  await loadDelta();
-  renderList();
-  toast("¡Actualizado!");
-  btn.disabled = false;
-}
 
 function startCountdown() {
   clearInterval(cdTimer);
@@ -251,7 +291,7 @@ function startCountdown() {
     cdSecs--;
     const h = Math.floor(cdSecs/3600), m = Math.floor((cdSecs%3600)/60), s = String(cdSecs%60).padStart(2,"0");
     document.getElementById("countdown").textContent = h>0?`refresh en ${h}h ${m}m`:`refresh en ${m}:${s}`;
-    if (cdSecs<=0) { await loadPlayers(); await loadDelta(); renderList(); startCountdown(); }
+    if (cdSecs<=0) { await loadPlayers(); await loadDelta(); renderList(); renderSpectrum(); startCountdown(); }
   }, 1000);
 }
 
@@ -363,6 +403,64 @@ function renderList() {
         </div>
         <div class="list-ingame ${p.inGame?"live":"idle"}">${p.inGame?"● IN GAME":"· offline"}</div>
       </a>`);
+  });
+}
+
+const TIER_ORDER_SPEC = {IRON:0,BRONZE:1,SILVER:2,GOLD:3,PLATINUM:4,EMERALD:5,DIAMOND:6,MASTER:7};
+const RANK_ORDER_SPEC = {IV:0,III:1,II:2,I:3};
+const MAX_SCORE = 3200; // Master 400LP cap
+
+function specScore(tier, rank, lp) {
+  if (!tier) return 0;
+  if (tier==="MASTER"||tier==="GRANDMASTER"||tier==="CHALLENGER")
+    return Math.min(2800 + Math.min(lp||0, 400), MAX_SCORE);
+  const t = TIER_ORDER_SPEC[tier] ?? 0;
+  const r = RANK_ORDER_SPEC[rank] ?? 0;
+  return Math.min(t*400 + r*100 + Math.min(lp||0,99), MAX_SCORE);
+}
+
+function tierColor(tier) {
+  const map = {IRON:"#9e9e9e",BRONZE:"#cd7f32",SILVER:"#9ab0c0",GOLD:"#c89b3c",
+    PLATINUM:"#3dc0a0",EMERALD:"#50c878",DIAMOND:"#9ab8ff",MASTER:"#d080ff"};
+  return map[tier] || "#58677a";
+}
+
+function renderSpectrum() {
+  const area = document.getElementById("spectrum-track-area");
+  // Remove old player circles but keep the track
+  area.querySelectorAll(".spec-player").forEach(el => el.remove());
+
+  const ranked = players
+    .filter(p => !p.error)
+    .map(p => {
+      const s = solo(p);
+      return { ...p, sc: s ? specScore(s.tier, s.rank, s.leaguePoints) : 0, solo: s };
+    })
+    .sort((a,b) => a.sc - b.sc);
+
+  // Nudge overlapping players vertically
+  const placed = [];
+  ranked.forEach(p => {
+    const nearby = placed.filter(q => Math.abs(q.sc - p.sc) < 55);
+    placed.push({ ...p, yOff: nearby.length === 0 ? 0 : nearby.length % 2 === 1 ? -22 : 22 });
+  });
+
+  placed.forEach(p => {
+    const pct   = (p.sc / MAX_SCORE) * 100;
+    const color = tierColor(p.solo?.tier);
+    const label = p.solo
+      ? `${p.gameName} — ${p.solo.tier} ${p.solo.rank} ${p.solo.leaguePoints}LP`
+      : `${p.gameName} — Unranked`;
+    const el = document.createElement("div");
+    el.className = "spec-player";
+    el.style.left = `${pct}%`;
+    el.style.marginTop = `${p.yOff}px`;
+    el.innerHTML = `
+      <div class="spec-avatar-ring" style="background:${color}40;border:2px solid ${color};">
+        <img class="spec-avatar" src="${ICON(p.profileIconId||29)}" onerror="this.src='${ICON(29)}'"/>
+      </div>
+      <div class="spec-label">${label}</div>`;
+    area.appendChild(el);
   });
 }
 
