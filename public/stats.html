@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Stats Semanales — Team AWA</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg:      #080b0f;
+  --bg2:     #0d1117;
+  --bg3:     #141b23;
+  --border:  #1c2630;
+  --gold:    #c89b3c;
+  --gold2:   #f0ce71;
+  --silver:  #9ab0c0;
+  --bronze:  #cd7f32;
+  --blue:    #1e90ff;
+  --red:     #d9534a;
+  --green:   #4ad97a;
+  --text:    #cccbc4;
+  --muted:   #58677a;
+}
+*, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+body { background:var(--bg); color:var(--text); font-family:'DM Sans',sans-serif; min-height:100vh; overflow-x:hidden; }
+body::before {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0;
+  background:radial-gradient(ellipse 70% 35% at 50% -5%, rgba(74,144,217,.1) 0%,transparent 60%),
+             radial-gradient(ellipse 50% 25% at 85% 90%, rgba(200,155,60,.07) 0%,transparent 55%);
+}
+body::after {
+  content:''; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.025;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-size:128px;
+}
+.wrapper { position:relative; z-index:1; max-width:1000px; margin:0 auto; padding:0 28px 120px; }
+
+/* HEADER */
+header { display:flex; align-items:flex-end; justify-content:space-between; padding:44px 0 36px; flex-wrap:wrap; gap:16px; }
+.logo-block { display:flex; flex-direction:column; gap:4px; }
+.logo-eyebrow { font-family:'DM Mono',monospace; font-size:.75rem; letter-spacing:3px; text-transform:uppercase; color:var(--gold); opacity:.8; }
+.logo-title { font-family:'Bebas Neue',sans-serif; font-size:3.2rem; letter-spacing:3px; line-height:1; color:var(--gold2); text-shadow:0 0 40px rgba(200,155,60,.35); }
+.logo-sub { font-family:'DM Mono',monospace; font-size:.75rem; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-top:4px; }
+.btn-back {
+  font-family:'DM Mono',monospace; font-size:.78rem; padding:8px 16px; border-radius:6px;
+  cursor:pointer; transition:all .2s; text-decoration:none; display:inline-flex; align-items:center; gap:6px;
+  border:1px solid var(--border); color:var(--muted); background:none;
+}
+.btn-back:hover { border-color:var(--gold); color:var(--gold); }
+
+/* SECTION TITLES */
+.section-title { font-family:'DM Mono',monospace; font-size:.65rem; text-transform:uppercase; letter-spacing:3px; color:var(--gold); margin-bottom:20px; display:flex; align-items:center; gap:10px; }
+.section-title::after { content:''; flex:1; height:1px; background:var(--border); }
+
+/* ── RANK SPECTRUM ────────────────────────────────── */
+.spectrum-wrap {
+  background:var(--bg2); border:1px solid var(--border); border-radius:16px;
+  padding:40px 32px 36px; margin-bottom:48px; position:relative; overflow:visible;
+}
+
+/* Zone colours */
+.zone-iron     { --zc: #9e9e9e22; --zb: #9e9e9e; }
+.zone-bronze   { --zc: #cd7f3222; --zb: #cd7f32; }
+.zone-silver   { --zc: #9ab0c022; --zb: #9ab0c0; }
+.zone-gold     { --zc: #c89b3c22; --zb: #c89b3c; }
+.zone-platinum { --zc: #3dc0a022; --zb: #3dc0a0; }
+.zone-emerald  { --zc: #50c87822; --zb: #50c878; }
+.zone-diamond  { --zc: #9ab8ff22; --zb: #9ab8ff; }
+.zone-master   { --zc: #d080ff22; --zb: #d080ff; }
+
+/* Track */
+.spectrum-track-area { position:relative; height:56px; margin-bottom:10px; }
+.spectrum-track {
+  position:absolute; left:0; right:0; top:50%; transform:translateY(-50%);
+  height:10px; border-radius:999px; overflow:hidden; display:flex;
+}
+.tier-zone { height:100%; flex:1; transition:opacity .2s; }
+.tier-zone.zone-iron     { background:linear-gradient(90deg,#4a4a4a,#7a7a7a); }
+.tier-zone.zone-bronze   { background:linear-gradient(90deg,#7a3d0a,#cd7f32); }
+.tier-zone.zone-silver   { background:linear-gradient(90deg,#5a7080,#9ab0c0); }
+.tier-zone.zone-gold     { background:linear-gradient(90deg,#7a5c1a,#c89b3c); }
+.tier-zone.zone-platinum { background:linear-gradient(90deg,#1a7060,#3dc0a0); }
+.tier-zone.zone-emerald  { background:linear-gradient(90deg,#1a7040,#50c878); }
+.tier-zone.zone-diamond  { background:linear-gradient(90deg,#3a50a0,#9ab8ff); }
+.tier-zone.zone-master   { background:linear-gradient(90deg,#6020c0,#d080ff); }
+
+/* Tick marks */
+.tick { position:absolute; top:50%; transform:translate(-50%,-50%); width:1px; height:18px; background:rgba(255,255,255,.12); pointer-events:none; }
+
+/* Player avatars on spectrum */
+.spec-player {
+  position:absolute; top:50%; transform:translate(-50%,-50%);
+  display:flex; flex-direction:column; align-items:center;
+  transition:transform .5s cubic-bezier(.34,1.56,.64,1);
+  z-index:2; cursor:default;
+}
+.spec-player:hover { z-index:10; }
+.spec-player:hover .spec-label { opacity:1; transform:translateY(0); }
+.spec-avatar-ring {
+  width:36px; height:36px; border-radius:50%; padding:2px;
+  background:var(--border); box-shadow:0 2px 12px rgba(0,0,0,.5);
+  transition:transform .2s, box-shadow .2s;
+}
+.spec-player:hover .spec-avatar-ring { transform:scale(1.2); box-shadow:0 4px 20px rgba(0,0,0,.7); }
+.spec-avatar { width:100%; height:100%; border-radius:50%; object-fit:cover; display:block; }
+.spec-label {
+  position:absolute; bottom:calc(100% + 6px); left:50%; transform:translate(-50%,4px);
+  background:var(--bg3); border:1px solid var(--border); color:var(--text);
+  font-family:'DM Mono',monospace; font-size:.6rem; padding:3px 8px; border-radius:5px;
+  white-space:nowrap; opacity:0; transition:opacity .15s, transform .15s; pointer-events:none;
+  box-shadow:0 4px 12px rgba(0,0,0,.4);
+}
+
+/* Tier labels below */
+.tier-labels { display:flex; margin-top:6px; }
+.tier-label-item { flex:1; text-align:center; font-family:'DM Mono',monospace; font-size:.6rem; text-transform:uppercase; letter-spacing:.5px; padding-top:4px; }
+.tier-label-item.zone-iron     { color:#9e9e9e; }
+.tier-label-item.zone-bronze   { color:#cd7f32; }
+.tier-label-item.zone-silver   { color:#9ab0c0; }
+.tier-label-item.zone-gold     { color:var(--gold); }
+.tier-label-item.zone-platinum { color:#3dc0a0; }
+.tier-label-item.zone-emerald  { color:#50c878; }
+.tier-label-item.zone-diamond  { color:#9ab8ff; }
+.tier-label-item.zone-master   { color:#d080ff; }
+
+/* ── STATS GRID ───────────────────────────────────── */
+.stats-grid { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+.stat-card { background:var(--bg2); border:1px solid var(--border); border-radius:14px; padding:24px; }
+.stat-card-title { font-family:'DM Mono',monospace; font-size:.65rem; text-transform:uppercase; letter-spacing:2px; color:var(--muted); margin-bottom:18px; }
+
+.bar-row { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.bar-row:last-child { margin-bottom:0; }
+.bar-label { font-family:'DM Mono',monospace; font-size:.72rem; width:110px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; flex-shrink:0; }
+.bar-track { flex:1; height:7px; background:var(--bg3); border-radius:4px; overflow:hidden; }
+.bar-fill { height:100%; border-radius:4px; transition:width .7s cubic-bezier(.4,0,.2,1); }
+.bar-val { font-family:'DM Mono',monospace; font-size:.72rem; width:48px; text-align:right; flex-shrink:0; }
+.bar-val.pos { color:var(--green); }
+.bar-val.neg { color:var(--red); }
+.bar-val.zero{ color:var(--muted); }
+.bar-val.blue{ color:var(--blue); }
+
+.empty-state { font-family:'DM Mono',monospace; font-size:.8rem; color:var(--muted); text-align:center; padding:24px 0; }
+
+.skel { background:linear-gradient(90deg,var(--bg2) 25%,var(--bg3) 50%,var(--bg2) 75%); background-size:200% 100%; animation:skimmer 1.5s infinite; border-radius:6px; }
+@keyframes skimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+@media(max-width:680px) { .stats-grid{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <header>
+    <div class="logo-block">
+      <div class="logo-eyebrow">Season 16</div>
+      <div class="logo-title">Team AWA</div>
+      <div class="logo-sub">Stats semanales</div>
+    </div>
+    <a href="index.html" class="btn-back">← Volver al ranking</a>
+  </header>
+
+  <!-- RANK SPECTRUM -->
+  <div class="section-title">Posición en el espectro ranked</div>
+  <div class="spectrum-wrap">
+    <div class="spectrum-track-area" id="spectrum-track-area">
+      <div class="spectrum-track" id="spectrum-track">
+        <div class="tier-zone zone-iron"></div>
+        <div class="tier-zone zone-bronze"></div>
+        <div class="tier-zone zone-silver"></div>
+        <div class="tier-zone zone-gold"></div>
+        <div class="tier-zone zone-platinum"></div>
+        <div class="tier-zone zone-emerald"></div>
+        <div class="tier-zone zone-diamond"></div>
+        <div class="tier-zone zone-master"></div>
+      </div>
+      <!-- player circles injected here -->
+    </div>
+    <div class="tier-labels">
+      <div class="tier-label-item zone-iron">Iron</div>
+      <div class="tier-label-item zone-bronze">Bronze</div>
+      <div class="tier-label-item zone-silver">Silver</div>
+      <div class="tier-label-item zone-gold">Gold</div>
+      <div class="tier-label-item zone-platinum">Plat</div>
+      <div class="tier-label-item zone-emerald">Emerald</div>
+      <div class="tier-label-item zone-diamond">Diamond</div>
+      <div class="tier-label-item zone-master">Master</div>
+    </div>
+  </div>
+
+  <!-- WEEKLY CHARTS -->
+  <div class="section-title">Última semana</div>
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-card-title">LP ganados / perdidos 📈</div>
+      <div id="chart-lp"><div class="empty-state skel" style="height:200px"></div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-title">Partidas jugadas 🎮</div>
+      <div id="chart-games"><div class="empty-state skel" style="height:200px"></div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-title">WR esta semana 🎯</div>
+      <div id="chart-wr"><div class="empty-state skel" style="height:200px"></div></div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-card-title">Victorias esta semana 🏅</div>
+      <div id="chart-wins"><div class="empty-state skel" style="height:200px"></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const DDRAGON_V = "15.1.1";
+const ICON = id => `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_V}/img/profileicon/${id}.png`;
+const TIER_ORDER = {IRON:0,BRONZE:1,SILVER:2,GOLD:3,PLATINUM:4,EMERALD:5,DIAMOND:6,MASTER:7};
+const RANK_ORDER = {IV:0,III:1,II:2,I:3};
+const MAX_SCORE  = 3500; // Master 700LP = displayed maximum
+
+/* Score: each tier = 400 pts, each division = 100 pts, LP direct
+   Iron IV 0LP = 0, Master 700LP = 3500 */
+function specScore(tier, rank, lp) {
+  if (!tier) return 0;
+  // Master has no divisions; just 2800 + LP (capped at 700 for display)
+  if (tier === "MASTER" || tier === "GRANDMASTER" || tier === "CHALLENGER") {
+    return Math.min(2800 + Math.min(lp||0, 700), MAX_SCORE);
+  }
+  const t = TIER_ORDER[tier] ?? 0;
+  const r = RANK_ORDER[rank] ?? 0;
+  return Math.min(t * 400 + r * 100 + Math.min(lp||0, 99), MAX_SCORE);
+}
+
+(async function init() {
+  const [playersData, weeklyData] = await Promise.all([
+    fetch("/api/data?type=players").then(r=>r.json()).catch(()=>({players:[]})),
+    fetch("/api/data?type=weekly").then(r=>r.json()).catch(()=>[]),
+  ]);
+  const players = playersData.players || [];
+  renderSpectrum(players);
+  renderWeekly(Array.isArray(weeklyData) ? weeklyData : []);
+})();
+
+/* ── SPECTRUM ────────────────────────────────────── */
+function renderSpectrum(players) {
+  const area  = document.getElementById("spectrum-track-area");
+  const track = document.getElementById("spectrum-track");
+
+  // Deduplicate players that land at exactly the same score
+  // by slightly nudging them vertically (alternate above/below the track)
+  const ranked = players
+    .filter(p => !p.error)
+    .map(p => {
+      const s = (p.rankData||[]).find(r=>r.queueType==="RANKED_SOLO_5x5");
+      const score = s ? specScore(s.tier, s.rank, s.leaguePoints) : 0;
+      return { ...p, specScore: score, solo: s };
+    })
+    .sort((a,b) => a.specScore - b.specScore);
+
+  // Group overlapping (within 50 score pts) and offset vertically
+  const placed = [];
+  ranked.forEach(p => {
+    const nearby = placed.filter(q => Math.abs(q.specScore - p.specScore) < 60);
+    const offset = nearby.length === 0 ? 0 : (nearby.length % 2 === 1 ? -28 : 28);
+    placed.push({ ...p, yOffset: offset });
+  });
+
+  placed.forEach(p => {
+    const pct   = (p.specScore / MAX_SCORE) * 100;
+    const tier  = p.solo?.tier?.toLowerCase() || "unranked";
+    const ringColor = tierColor(p.solo?.tier);
+    const label = p.solo
+      ? `${p.gameName} — ${p.solo.tier} ${p.solo.rank} ${p.solo.leaguePoints}LP`
+      : `${p.gameName} — Unranked`;
+
+    const el = document.createElement("div");
+    el.className = "spec-player";
+    el.style.left = `${pct}%`;
+    el.style.marginTop = `${p.yOffset}px`;
+    el.innerHTML = `
+      <div class="spec-avatar-ring" style="background:${ringColor}40;border:2px solid ${ringColor};">
+        <img class="spec-avatar" src="${ICON(p.profileIconId||29)}" onerror="this.src='${ICON(29)}'"/>
+      </div>
+      <div class="spec-label">${label}</div>`;
+    area.appendChild(el);
+  });
+}
+
+function tierColor(tier) {
+  const map = {
+    IRON:"#9e9e9e", BRONZE:"#cd7f32", SILVER:"#9ab0c0", GOLD:"#c89b3c",
+    PLATINUM:"#3dc0a0", EMERALD:"#50c878", DIAMOND:"#9ab8ff",
+    MASTER:"#d080ff", GRANDMASTER:"#ff6644", CHALLENGER:"#f0ce71",
+  };
+  return map[tier] || "#58677a";
+}
+
+/* ── WEEKLY CHARTS ───────────────────────────────── */
+function renderWeekly(weekly) {
+  if (!weekly.length) {
+    ["chart-lp","chart-games","chart-wr","chart-wins"].forEach(id=>{
+      document.getElementById(id).innerHTML=`<div class="empty-state">Sin datos</div>`;
+    });
+    return;
+  }
+
+  const byLp    = [...weekly].sort((a,b)=>b.lpGain-a.lpGain);
+  const byGames = [...weekly].sort((a,b)=>b.gamesPlayed-a.gamesPlayed);
+  const byWr    = [...weekly].filter(p=>p.gamesPlayed>=3).sort((a,b)=>(b.weekWr||0)-(a.weekWr||0));
+  const byWins  = [...weekly].sort((a,b)=>b.weekWins-a.weekWins);
+
+  const maxLpAbs = Math.max(...weekly.map(p=>Math.abs(p.lpGain)),1);
+  const maxGames = Math.max(...weekly.map(p=>p.gamesPlayed),1);
+  const maxWins  = Math.max(...weekly.map(p=>p.weekWins),1);
+
+  document.getElementById("chart-lp").innerHTML = byLp.map(p=>{
+    const v=p.lpGain, cls=v>0?"pos":v<0?"neg":"zero", pct=Math.round(Math.abs(v)/maxLpAbs*100);
+    const color=v>0?"var(--green)":v<0?"var(--red)":"var(--muted)";
+    return bar(p.gameName, pct, color, (v>0?"+":"")+v, cls);
+  }).join("");
+
+  document.getElementById("chart-games").innerHTML = byGames.map(p=>{
+    const pct=Math.round(p.gamesPlayed/maxGames*100);
+    return bar(p.gameName, pct, "var(--blue)", p.gamesPlayed+"g", "blue");
+  }).join("");
+
+  document.getElementById("chart-wr").innerHTML = byWr.length
+    ? byWr.map(p=>{
+        const wr=p.weekWr||0, color=wr>52?"var(--green)":wr>=49?"var(--gold)":"var(--red)";
+        const cls=wr>52?"pos":wr>=49?"zero":"neg";
+        return bar(p.gameName, wr, color, wr+"%", cls);
+      }).join("")
+    : `<div class="empty-state">Mínimo 3 partidas</div>`;
+
+  document.getElementById("chart-wins").innerHTML = byWins.map(p=>{
+    const pct=Math.round(p.weekWins/maxWins*100);
+    return bar(p.gameName, pct, "var(--green)", p.weekWins+"W", "pos");
+  }).join("");
+}
+
+function bar(label, pct, color, val, valCls) {
+  return `<div class="bar-row">
+    <div class="bar-label">${label}</div>
+    <div class="bar-track"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div>
+    <div class="bar-val ${valCls}">${val}</div>
+  </div>`;
+}
+</script>
+</body>
+</html>
