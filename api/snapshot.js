@@ -162,17 +162,7 @@ async function buildSnapshot(apiKey, supabase) {
   const prevByPuuid = {};
   for (const p of prevPlayers || []) prevByPuuid[p.puuid] = p;
 
-  // Load match counts per player from DB — used to detect who needs backfill
-  const { data: matchCounts } = await supabase
-    .from("player_matches")
-    .select("puuid")
-    .order("played_at", { ascending: false });
-  const matchCountByPuuid = {};
-  for (const m of matchCounts || []) {
-    matchCountByPuuid[m.puuid] = (matchCountByPuuid[m.puuid] || 0) + 1;
-  }
-
-  const trackedPuuids = new Set(); // filled as we process players
+  const trackedPuuids = new Set();
   const now = new Date().toISOString();
 
   for (const p of PLAYERS) {
@@ -237,13 +227,11 @@ async function buildSnapshot(apiKey, supabase) {
         console.log(`[snapshot] ${acc.gameName}: rank changed (${prevScore} → ${newScore})`);
       }
 
-      // 5. Match list — fetch if new games played OR player has fewer than 10 matches stored
+      // 5. Match list — only fetch if wins+losses increased (new game played)
       const prevWins   = prev?.wins   ?? playerRow.wins;
       const prevLosses = prev?.losses ?? playerRow.losses;
       const gamesPlayed = (playerRow.wins + playerRow.losses) - (prevWins + prevLosses);
-      const storedMatchCount = matchCountByPuuid[acc.puuid] || 0;
-      const needsBackfill = storedMatchCount < MAX_MATCHES;
-      const hasNewGames = gamesPlayed > 0 || !prev || needsBackfill;
+      const hasNewGames = gamesPlayed > 0;
 
       if (hasNewGames) {
         const matchIds = await riotGet(ROUTING,
