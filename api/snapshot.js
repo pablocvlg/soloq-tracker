@@ -162,14 +162,14 @@ async function buildSnapshot(apiKey, supabase) {
   const prevByPuuid = {};
   for (const p of prevPlayers || []) prevByPuuid[p.puuid] = p;
 
-  // Load the most recent match_id we have stored per player — to detect new games
-  const { data: latestMatches } = await supabase
+  // Load match counts per player from DB — used to detect who needs backfill
+  const { data: matchCounts } = await supabase
     .from("player_matches")
-    .select("puuid, match_id, played_at")
+    .select("puuid")
     .order("played_at", { ascending: false });
-  const latestMatchByPuuid = {};
-  for (const m of latestMatches || []) {
-    if (!latestMatchByPuuid[m.puuid]) latestMatchByPuuid[m.puuid] = m.match_id;
+  const matchCountByPuuid = {};
+  for (const m of matchCounts || []) {
+    matchCountByPuuid[m.puuid] = (matchCountByPuuid[m.puuid] || 0) + 1;
   }
 
   const trackedPuuids = new Set(); // filled as we process players
@@ -241,7 +241,7 @@ async function buildSnapshot(apiKey, supabase) {
       const prevWins   = prev?.wins   ?? playerRow.wins;
       const prevLosses = prev?.losses ?? playerRow.losses;
       const gamesPlayed = (playerRow.wins + playerRow.losses) - (prevWins + prevLosses);
-      const storedMatchCount = (latestMatches || []).filter(m => m.puuid === acc.puuid).length;
+      const storedMatchCount = matchCountByPuuid[acc.puuid] || 0;
       const needsBackfill = storedMatchCount < MAX_MATCHES;
       const hasNewGames = gamesPlayed > 0 || !prev || needsBackfill;
 
