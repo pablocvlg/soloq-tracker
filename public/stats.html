@@ -215,15 +215,15 @@ const DDRAGON_V = "15.1.1";
 const ICON = id => `https://ddragon.leagueoflegends.com/cdn/${DDRAGON_V}/img/profileicon/${id}.png`;
 const TIER_ORDER = {IRON:0,BRONZE:1,SILVER:2,GOLD:3,PLATINUM:4,EMERALD:5,DIAMOND:6,MASTER:7};
 const RANK_ORDER = {IV:0,III:1,II:2,I:3};
-const MAX_SCORE  = 3500; // Master 700LP = displayed maximum
+const MAX_SCORE  = 3200; // Master 400LP = displayed maximum
 
 /* Score: each tier = 400 pts, each division = 100 pts, LP direct
    Iron IV 0LP = 0, Master 700LP = 3500 */
 function specScore(tier, rank, lp) {
   if (!tier) return 0;
-  // Master has no divisions; just 2800 + LP (capped at 700 for display)
+  // Master has no divisions; just 2800 + LP (capped at 400 for display)
   if (tier === "MASTER" || tier === "GRANDMASTER" || tier === "CHALLENGER") {
-    return Math.min(2800 + Math.min(lp||0, 700), MAX_SCORE);
+    return Math.min(2800 + Math.min(lp||0, 400), MAX_SCORE);
   }
   const t = TIER_ORDER[tier] ?? 0;
   const r = RANK_ORDER[rank] ?? 0;
