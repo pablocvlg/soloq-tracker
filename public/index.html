@@ -265,8 +265,8 @@ async function loadPlayers(force=false) {
     players = data.players || [];
     const hora = new Date(data.updatedAt).toLocaleTimeString("es-ES");
     document.getElementById("last-updated").textContent =
-      `datos de las ${hora}`;
-    cdSecs = Math.max(600, Math.floor((600000 - (Date.now() - (data.updatedAt||Date.now()))) / 1000));
+      `datos de las ${hora} (${data.cached!==false?"caché":"actualizado"})`;
+    cdSecs = Math.max(10, Math.floor((600000 - (Date.now() - (data.updatedAt||Date.now()))) / 1000));
   } catch(e) {
     console.error(e);
     document.getElementById("last-updated").textContent = "error al cargar — reintenta";
@@ -317,7 +317,9 @@ function streakInfo(matches) {
 
 function listStrips(p) {
   if (!p.recentMatches?.length) return "";
-  const ordered = [...p.recentMatches].reverse();
+  // recentMatches comes oldest-first from API (already reversed in data.js)
+  // so we display as-is: oldest left, newest right
+  const ordered = p.recentMatches;
   const cells = ordered.map(m=>`
     <div class="list-mcell">
       <div class="list-mstrip ${m.win?"w":"l"}"></div>

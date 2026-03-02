@@ -88,17 +88,18 @@ module.exports = async function handler(req, res) {
           .from("players")
           .select("puuid, game_name, tag_line, tier, rank, lp, wins, losses");
 
-        // Earliest rank_history record per player from within the last 7 days
-        // Used only for LP gain calculation
+        // Get ALL rank_history records from the last 7 days per player
+        // We want the OLDEST one (to measure gain from start of week)
+        // but LP gain should be raw LP diff, not score diff
         const { data: histRows } = await supabase
           .from("rank_history")
-          .select("puuid, score, recorded_at")
+          .select("puuid, lp, tier, rank, recorded_at")
           .gte("recorded_at", weekAgo)
           .order("recorded_at", { ascending: true });
 
         const oldByPuuid = {};
         for (const row of histRows || []) {
-          if (!oldByPuuid[row.puuid]) oldByPuuid[row.puuid] = row;
+          if (!oldByPuuid[row.puuid]) oldByPuuid[row.puuid] = row; // keep earliest
         }
 
         // Count actual games played in the last 7 days from player_matches
@@ -115,9 +116,10 @@ module.exports = async function handler(req, res) {
         }
 
         const weekly = (current || []).map(p => {
-          const prev      = oldByPuuid[p.puuid];
+          const prev    = oldByPuuid[p.puuid];
+          // Use full rank score diff so promotions/demotions are counted correctly
           const nowScore  = rankScore(p.tier, p.rank, p.lp);
-          const prevScore = prev ? prev.score : nowScore;
+          const prevScore = prev ? rankScore(prev.tier, prev.rank, prev.lp) : nowScore;
           const lpGain    = nowScore - prevScore;
 
           // Games played counted directly from match history
