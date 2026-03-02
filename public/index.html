@@ -54,9 +54,6 @@ header { display:flex; align-items:flex-end; justify-content:space-between; padd
 }
 .btn-nav:hover { background:rgba(200,155,60,.14); border-color:var(--gold2); color:var(--gold2); }
 
-#status-bar { font-family:'DM Mono',monospace; font-size:.75rem; color:var(--muted); display:flex; align-items:center; gap:10px; margin-bottom:24px; }
-.status-line { flex:1; height:1px; background:var(--border); }
-
 #list { display:flex; flex-direction:column; gap:10px; }
 
 .list-row {
@@ -188,12 +185,6 @@ header { display:flex; align-items:flex-end; justify-content:space-between; padd
     </div>
   </header>
 
-  <div id="status-bar">
-    <div class="status-line"></div>
-    <span id="status-text">cargando...</span>
-    <div class="status-line"></div>
-  </div>
-
   <div class="spectrum-wrap">
     <div class="spectrum-track-area" id="spectrum-track-area">
       <div class="spectrum-track">
@@ -253,7 +244,6 @@ async function loadPlayers() {
     players = data.players || [];
   } catch(e) {
     console.error(e);
-    document.getElementById("status-text").textContent = "error al cargar — reintenta";
     toast("Error al cargar datos", true);
   }
 }
