@@ -248,8 +248,9 @@ const RANK_ORDER = {IV:0,III:1,II:2,I:3};
 
 let players      = [];
 let deltaByPuuid = {};
-let cdSecs       = 3600;
+let cdSecs       = 600;
 let cdTimer      = null;
+let ingameTimer  = null;
 
 (async function init() {
   renderSkeleton();
@@ -257,6 +258,7 @@ let cdTimer      = null;
   renderList();
   renderSpectrum();
   startCountdown();
+  startIngamePolling();
 })();
 
 async function loadPlayers(force=false) {
@@ -286,7 +288,6 @@ async function loadDelta() {
   } catch(e) { console.warn("Delta load failed", e.message); }
 }
 
-
 function startCountdown() {
   clearInterval(cdTimer);
   cdTimer = setInterval(async () => {
@@ -295,6 +296,53 @@ function startCountdown() {
     document.getElementById("countdown").textContent = h>0?`refresh en ${h}h ${m}m`:`refresh en ${m}:${s}`;
     if (cdSecs<=0) { await loadPlayers(); await loadDelta(); renderList(); renderSpectrum(); startCountdown(); }
   }, 1000);
+}
+
+function startIngamePolling() {
+  clearInterval(ingameTimer);
+  ingameTimer = setInterval(pollIngame, 30000); // every 30s
+}
+
+async function pollIngame() {
+  try {
+    const res = await fetch("/api/ingame");
+    if (!res.ok) return;
+    const data = await res.json();
+
+    // Update in-game status locally without full reload
+    let changed = false;
+    for (const p of data.players) {
+      const local = players.find(lp => lp.puuid === p.puuid);
+      if (local && local.inGame !== p.inGame) {
+        local.inGame = p.inGame;
+        changed = true;
+      }
+    }
+    if (changed) { renderList(); renderSpectrum(); }
+
+    // For each player who just left, trigger postgame update
+    for (const p of data.justLeft || []) {
+      console.log(`[ingame] ${p.gameName} just left — fetching postgame`);
+      // Small delay to let Riot finalize the match result
+      setTimeout(() => triggerPostgame(p.puuid, p.gameName), 15000);
+    }
+  } catch(e) { console.warn("[ingame] poll failed", e.message); }
+}
+
+async function triggerPostgame(puuid, gameName) {
+  try {
+    const res = await fetch(`/api/postgame?puuid=${puuid}`);
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.newMatch) {
+      console.log(`[postgame] ${gameName}: new match stored, reloading data`);
+      await loadPlayers();
+      await loadDelta();
+      renderList();
+      renderSpectrum();
+      toast(`${gameName} acabó partida — datos actualizados`);
+    }
+  } catch(e) { console.warn("[postgame] failed", e.message); }
 }
 
 function rankScore(p) {
