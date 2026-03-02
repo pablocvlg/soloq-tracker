@@ -301,7 +301,7 @@ function renderWeekly(weekly) {
 
   const byLp    = [...weekly].sort((a,b)=>b.lpGain-a.lpGain);
   const byGames = [...weekly].sort((a,b)=>b.gamesPlayed-a.gamesPlayed);
-  const byWr    = [...weekly].filter(p=>p.gamesPlayed>=3).sort((a,b)=>(b.weekWr||0)-(a.weekWr||0));
+  const byWr    = [...weekly].filter(p=>p.gamesPlayed>=1).sort((a,b)=>(b.weekWr||0)-(a.weekWr||0));
 
   const maxLpAbs = Math.max(...weekly.map(p=>Math.abs(p.lpGain)),1);
   const maxGames = Math.max(...weekly.map(p=>p.gamesPlayed),1);
@@ -323,7 +323,7 @@ function renderWeekly(weekly) {
         const cls=wr>52?"pos":wr>=49?"zero":"neg";
         return bar(p.gameName, wr, color, wr+"%", cls);
       }).join("")
-    : `<div class="empty-state">Mínimo 3 partidas</div>`;
+    : `<div class="empty-state">Sin partidas esta semana.</div>`;
 }
 
 function bar(label, pct, color, val, valCls) {
