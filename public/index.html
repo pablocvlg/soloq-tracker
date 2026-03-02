@@ -113,9 +113,13 @@ header { display:flex; align-items:flex-end; justify-content:space-between; padd
 .list-tag  { font-family:'DM Mono',monospace; font-size:.67rem; color:var(--muted); }
 
 /* Match strips */
-.list-matches-wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; flex:2; }
+.list-matches-wrap { display:flex; align-items:center; gap:8px; flex:2; justify-content:center; }
+.list-matches-inner { display:flex; flex-direction:column; gap:4px; align-items:center; }
 .list-matches { display:flex; gap:4px; justify-content:center; }
-.list-streak-wrap { height:15px; display:flex; align-items:center; justify-content:center; }
+.list-streak-badge { font-family:'DM Mono',monospace; font-size:.62rem; padding:2px 8px; border-radius:20px; white-space:nowrap; flex-shrink:0; }
+.list-streak-badge.w { background:rgba(74,217,122,.12); color:var(--green); border:1px solid rgba(74,217,122,.3); }
+.list-streak-badge.l { background:rgba(217,83,74,.12); color:var(--red); border:1px solid rgba(217,83,74,.3); }
+.list-streak-spacer { width:52px; flex-shrink:0; } /* same width as badge to keep history centered */
 .list-mcell { display:flex; flex-direction:column; align-items:center; gap:2px; width:30px; position:relative; cursor:default; }
 .list-mcell:hover .list-tooltip { opacity:1; }
 .list-tooltip { position:absolute; bottom:calc(100% + 5px); left:50%; transform:translateX(-50%); background:var(--bg3); border:1px solid var(--border); color:var(--text); font-family:'DM Mono',monospace; font-size:.6rem; padding:3px 7px; border-radius:5px; white-space:nowrap; opacity:0; transition:opacity .15s; z-index:10; pointer-events:none; }
@@ -123,9 +127,6 @@ header { display:flex; align-items:flex-end; justify-content:space-between; padd
 .list-mstrip.w { background:var(--green); }
 .list-mstrip.l { background:var(--red); }
 .list-mchamp { font-family:'DM Mono',monospace; font-size:.52rem; color:var(--muted); text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; width:100%; }
-.list-streak { font-family:'DM Mono',monospace; font-size:.62rem; padding:2px 8px; border-radius:20px; white-space:nowrap; }
-.list-streak.w { background:rgba(74,217,122,.12); color:var(--green); border:1px solid rgba(74,217,122,.3); }
-.list-streak.l { background:rgba(217,83,74,.12); color:var(--red); border:1px solid rgba(217,83,74,.3); }
 
 /* Rank */
 .list-rank-block { text-align:right; flex-shrink:0; min-width:160px; }
@@ -183,6 +184,7 @@ header { display:flex; align-items:flex-end; justify-content:space-between; padd
 
 @media(max-width:650px){
   .list-matches-wrap{display:none}
+  .list-name-block{display:none}
   .list-rank-block{min-width:0}
 }
 </style>
@@ -317,8 +319,6 @@ function streakInfo(matches) {
 
 function listStrips(p) {
   if (!p.recentMatches?.length) return "";
-  // recentMatches comes oldest-first from API (already reversed in data.js)
-  // so we display as-is: oldest left, newest right
   const ordered = p.recentMatches;
   const cells = ordered.map(m=>`
     <div class="list-mcell">
@@ -328,9 +328,15 @@ function listStrips(p) {
     </div>`).join("");
   const streak = streakInfo(ordered);
   const badge = streak
-    ? `<div class="list-streak-wrap"><span class="list-streak ${streak.win?"w":"l"}">🔥 ${streak.count}${streak.win?"W":"L"}</span></div>`
-    : `<div class="list-streak-wrap"></div>`;
-  return `<div class="list-matches-wrap"><div class="list-matches">${cells}</div>${badge}</div>`;
+    ? `<span class="list-streak-badge ${streak.win?"w":"l"}">${streak.win?"🔥":"❄️"} ${streak.count}${streak.win?"W":"L"}</span>`
+    : `<div class="list-streak-spacer"></div>`;
+  return `<div class="list-matches-wrap">
+    ${badge}
+    <div class="list-matches-inner">
+      <div class="list-matches">${cells}</div>
+    </div>
+    ${streak ? `<div class="list-streak-spacer"></div>` : `<div class="list-streak-spacer"></div>`}
+  </div>`;
 }
 
 function deltaHtml(puuid) {
