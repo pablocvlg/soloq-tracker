@@ -184,7 +184,6 @@ header { display:flex; align-items:flex-end; justify-content:space-between; padd
     </div>
     <div class="header-right">
       <div class="live-dot"><div class="dot"></div>En directo</div>
-      <div id="last-updated">—</div>
       <a href="stats.html" class="btn-nav">📊 Stats semanales</a>
     </div>
   </header>
@@ -252,9 +251,6 @@ async function loadPlayers() {
     if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
     players = data.players || [];
-    const hora = new Date(data.updatedAt).toLocaleTimeString("es-ES");
-    document.getElementById("last-updated").textContent = hora;
-    document.getElementById("status-text").textContent  = `actualizado a las ${hora}`;
   } catch(e) {
     console.error(e);
     document.getElementById("status-text").textContent = "error al cargar — reintenta";
