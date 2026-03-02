@@ -318,8 +318,8 @@ function listStrips(p) {
     ? `<span class="list-streak-badge ${streak.win?"w":"l"}">${streak.win?"🔥":"❄️"} ${streak.count}${streak.win?"W":"L"}</span>`
     : `<div class="list-streak-spacer"></div>`;
   return `<div class="list-matches-wrap">
-    ${badge}
     <div class="list-matches-inner"><div class="list-matches">${cells}</div></div>
+    ${badge}
     <div class="list-streak-spacer"></div>
   </div>`;
 }
