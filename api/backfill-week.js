@@ -65,7 +65,7 @@ module.exports = async function handler(req, res) {
       `/riot/account/v1/accounts/by-riot-id/${enc(p.name)}/${enc(p.tag)}`, apiKey);
     await sleep(DELAY_MS);
     matchIds = await riotGet(ROUTING,
-      `/lol/match/v5/matches/by-puuid/${acc.puuid}/ids?queue=420&start=0&count=35&startTime=${startTime}`,
+      `/lol/match/v5/matches/by-puuid/${acc.puuid}/ids?queue=420&start=0&count=45&startTime=${startTime}`,
       apiKey);
     await sleep(DELAY_MS);
     log.push(`${acc.gameName}: ${matchIds.length} matches in last 7d`);
