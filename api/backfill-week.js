@@ -77,7 +77,8 @@ module.exports = async function handler(req, res) {
   let knownSet = new Set();
   if (matchIds.length > 0) {
     const { data: known } = await supabase
-      .from("matches").select("match_id").in("match_id", matchIds);
+    .from("player_matches").select("match_id")
+    .eq("puuid", acc.puuid).in("match_id", matchIds);
     knownSet = new Set((known || []).map(m => m.match_id));
   }
 
