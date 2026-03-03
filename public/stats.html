@@ -35,20 +35,22 @@ body::after {
   background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
   background-size:128px;
 }
-.wrapper { position:relative; z-index:1; max-width:1000px; margin:0 auto; padding:0 28px 120px; }
+.wrapper { position:relative; z-index:1; max-width:1200px; margin:0 auto; padding:0 36px 120px; }
 
 /* HEADER */
-header { display:flex; align-items:flex-end; justify-content:space-between; padding:44px 0 36px; flex-wrap:wrap; gap:16px; }
+header { display:flex; align-items:flex-end; justify-content:space-between; padding:44px 0 15px; flex-wrap:wrap; gap:16px; }
+.header-left { display:flex; align-items:flex-end; gap:20px; }
 .logo-block { display:flex; flex-direction:column; gap:4px; }
 .logo-eyebrow { font-family:'DM Mono',monospace; font-size:.75rem; letter-spacing:3px; text-transform:uppercase; color:var(--gold); opacity:.8; }
 .logo-title { font-family:'Bebas Neue',sans-serif; font-size:3.2rem; letter-spacing:3px; line-height:1; color:var(--gold2); text-shadow:0 0 40px rgba(200,155,60,.35); }
 .logo-sub { font-family:'DM Mono',monospace; font-size:.75rem; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-top:4px; }
 .btn-back {
-  font-family:'DM Mono',monospace; font-size:.78rem; padding:8px 16px; border-radius:6px;
+  font-family:'DM Mono',monospace; font-size:.78rem; margin-bottom:6px; padding:8px 16px; border-radius:6px;
   cursor:pointer; transition:all .2s; text-decoration:none; display:inline-flex; align-items:center; gap:6px;
-  border:1px solid var(--border); color:var(--muted); background:none;
+  border:1px solid rgba(200,155,60,.45); color:var(--gold); background:rgba(200,155,60,.06);
+  letter-spacing:1px;
 }
-.btn-back:hover { border-color:var(--gold); color:var(--gold); }
+.btn-back:hover { background:rgba(200,155,60,.14); border-color:var(--gold2); color:var(--gold2); }
 
 /* SECTION TITLES */
 .section-title { font-family:'DM Mono',monospace; font-size:.65rem; text-transform:uppercase; letter-spacing:3px; color:var(--gold); margin-bottom:20px; display:flex; align-items:center; gap:10px; }
@@ -152,10 +154,12 @@ header { display:flex; align-items:flex-end; justify-content:space-between; padd
 <body>
 <div class="wrapper">
   <header>
-    <div class="logo-block">
-      <div class="logo-eyebrow">Season 16</div>
-      <div class="logo-title">Team AWA</div>
-      <div class="logo-sub">Stats semanales</div>
+    <div class="header-left">
+      <div class="logo-block">
+        <div class="logo-eyebrow">Season 16</div>
+        <div class="logo-title">Team AWA Tracker</div>
+        <div class="logo-sub">Stats semanales</div>
+      </div>
     </div>
     <a href="index.html" class="btn-back">← Volver al ranking</a>
   </header>
