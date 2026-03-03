@@ -13,6 +13,19 @@ function rankScore(tier, rank, lp) {
   if (!tier) return -1;
   return (TIER_ORDER[tier]??-1)*10000 + (RANK_ORDER[rank]??0)*1000 + (lp||0);
 }
+function calcLpGain(tierNow, rankNow, lpNow, tierPrev, rankPrev, lpPrev) {
+  if (!tierPrev) return 0;
+  // Same tier and division — simple LP diff
+  if (tierNow === tierPrev && rankNow === rankPrev)
+    return (lpNow || 0) - (lpPrev || 0);
+  // Different tier or division — use full score diff but scaled back to LP
+  // Each division = 100LP, each tier = 400LP
+  const TIER = { IRON:0,BRONZE:1,SILVER:2,GOLD:3,PLATINUM:4,EMERALD:5,DIAMOND:6,MASTER:7,GRANDMASTER:8,CHALLENGER:9 };
+  const RANK = { IV:0,III:1,II:2,I:3 };
+  const scoreNow  = (TIER[tierNow]??0)*400 + (RANK[rankNow]??0)*100 + (lpNow||0);
+  const scorePrev = (TIER[tierPrev]??0)*400 + (RANK[rankPrev]??0)*100 + (lpPrev||0);
+  return scoreNow - scorePrev;
+}
 
 module.exports = async function handler(req, res) {
   if (req.method === "OPTIONS") { res.writeHead(200, CORS); return res.end(); }
@@ -106,7 +119,10 @@ module.exports = async function handler(req, res) {
           const prev      = oldByPuuid[p.puuid];
           const nowScore  = rankScore(p.tier, p.rank, p.lp);
           const prevScore = prev ? rankScore(prev.tier, prev.rank, prev.lp) : nowScore;
-          const lpGain    = nowScore - prevScore;
+          const lpGain    = calcLpGain(
+            p.tier, p.rank, p.lp,
+            prev?.tier, prev?.rank, prev?.lp
+          );
           const ms        = matchStats[p.puuid] || { wins:0, losses:0 };
           const wPlayed   = ms.wins + ms.losses;
           return {
