@@ -370,7 +370,7 @@ function renderList() {
           <div class="list-lvl">${p.summonerLevel||"?"}</div>
         </div>
         <div class="list-name-block">
-          <div class="list-name">${p.gameName}</div>
+          <div class="list-name" ${pos<=3?`style="color:var(--${pos===1?'gold2':pos===2?'silver2':'bronze2'})"`:""}>${p.gameName}</div>
           <div class="list-tag">#${p.tagLine}</div>
         </div>
         ${listStrips(p)}
