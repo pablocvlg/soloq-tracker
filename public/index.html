@@ -97,6 +97,9 @@ header { display:flex; align-items:flex-end; justify-content:space-between; padd
 .list-name-block { min-width:0; flex:2; }
 .list-name { font-family:'Bebas Neue',sans-serif; font-size:1.2rem; letter-spacing:1px; line-height:1; white-space:nowrap; overflow:visible; }
 .list-tag  { font-family:'DM Mono',monospace; font-size:.67rem; color:var(--muted); }
+.rank-1 .list-name { color: var(--gold2); }
+.rank-2 .list-name { color: var(--silver2); }
+.rank-3 .list-name { color: var(--bronze2); }
 
 .list-matches-wrap { display:flex; align-items:center; gap:8px; flex:2; justify-content:center; }
 .list-matches-inner { display:flex; flex-direction:column; gap:4px; align-items:center; }
@@ -370,7 +373,7 @@ function renderList() {
           <div class="list-lvl">${p.summonerLevel||"?"}</div>
         </div>
         <div class="list-name-block">
-          <div class="list-name" ${pos<=3?`style="color:var(--${pos===1?'gold2':pos===2?'silver2':'bronze2'})"`:""}>${p.gameName}</div>
+          <div class="list-name">${p.gameName}</div>
           <div class="list-tag">#${p.tagLine}</div>
         </div>
         ${listStrips(p)}
