@@ -103,7 +103,7 @@ module.exports = async function handler(req, res) {
       }, { onConflict: "match_id" });
 
       const upserts = m.info.participants
-        .filter(part => trackedPuuids.has(part.puuid))
+        .filter(part => part.puuid === acc.puuid)
         .map(part => ({
           puuid:     part.puuid,
           match_id:  matchId,
