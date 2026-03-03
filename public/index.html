@@ -39,11 +39,11 @@ body::after {
 }
 .wrapper { position:relative; z-index:1; max-width:1200px; margin:0 auto; padding:0 36px 120px; }
 
-header { display:flex; align-items:flex-end; justify-content:space-between; padding:44px 0 30px; flex-wrap:wrap; gap:16px; }
+header { display:flex; align-items:center; justify-content:space-between; padding:44px 0 30px; flex-wrap:wrap; gap:16px; }
 .logo-block { display:flex; flex-direction:column; gap:4px; }
 .logo-eyebrow { font-family:'DM Mono',monospace; font-size:.75rem; letter-spacing:3px; text-transform:uppercase; color:var(--gold); opacity:.8; }
 .logo-title { font-family:'Bebas Neue',sans-serif; font-size:3.2rem; letter-spacing:3px; line-height:1; color:var(--gold2); text-shadow:0 0 40px rgba(200,155,60,.35); }
-.header-right { display:flex; flex-direction:column; align-items:flex-end; gap:8px; }
+.header-left { display:flex; align-items:center; gap:20px; }
 .live-dot { display:flex; align-items:center; gap:7px; font-family:'DM Mono',monospace; font-size:.78rem; color:var(--muted); }
 .dot { width:7px; height:7px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:blink 2.2s ease-in-out infinite; }
 @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
@@ -51,6 +51,7 @@ header { display:flex; align-items:flex-end; justify-content:space-between; padd
   font-family:'DM Mono',monospace; font-size:.78rem; padding:8px 16px; border-radius:6px;
   cursor:pointer; transition:all .2s; text-decoration:none; display:inline-flex; align-items:center; gap:6px;
   border:1px solid rgba(200,155,60,.45); color:var(--gold); background:rgba(200,155,60,.06);
+  letter-spacing:1px;
 }
 .btn-nav:hover { background:rgba(200,155,60,.14); border-color:var(--gold2); color:var(--gold2); }
 
@@ -175,14 +176,14 @@ header { display:flex; align-items:flex-end; justify-content:space-between; padd
 <body>
 <div class="wrapper">
   <header>
-    <div class="logo-block">
-      <div class="logo-eyebrow">Season 16</div>
-      <div class="logo-title">Team AWA Tracker</div>
-    </div>
-    <div class="header-right">
+    <div class="header-left">
+      <div class="logo-block">
+        <div class="logo-eyebrow">Season 16</div>
+        <div class="logo-title">Team AWA Tracker</div>
+      </div>
       <div class="live-dot"><div class="dot"></div>En directo</div>
-      <a href="stats.html" class="btn-nav">📊 STATS SEMANALES</a>
     </div>
+    <a href="stats.html" class="btn-nav">📊 STATS SEMANALES</a>
   </header>
 
   <div class="spectrum-wrap">
