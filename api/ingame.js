@@ -151,7 +151,7 @@ function riotGet(hostname, path, apiKey) {
       }
     );
     req.on("error", reject);
-    req.setTimeout(10000, () => { req.destroy(); reject(new Error("Timeout")); });
+    req.setTimeout(30000, () => { req.destroy(); reject(new Error("Timeout")); });
     req.end();
   });
 }
