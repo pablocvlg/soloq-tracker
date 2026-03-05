@@ -73,23 +73,20 @@ module.exports = async function handler(req, res) {
 async function runPostgame(puuid, apiKey, supabase) {
   const now = new Date().toISOString();
 
-  // Wait 20s for Riot to finalize the match
-  await sleep(20000);
+  // Actualizar rango primero (esto sí está disponible inmediatamente)
+  const rankData = await riotGet(EUW,
+    `/lol/league/v4/entries/by-puuid/${puuid}`, apiKey).catch(() => null);
 
-  const [rankData, matchIds] = await Promise.all([
-    riotGet(EUW,     `/lol/league/v4/entries/by-puuid/${puuid}`, apiKey),
-    riotGet(ROUTING, `/lol/match/v5/matches/by-puuid/${puuid}/ids?start=0&count=5&queue=420`, apiKey),
-  ]);
-
-  // Update rank
-  const solo = (rankData||[]).find(r => r.queueType === "RANKED_SOLO_5x5");
+  const solo = (rankData || []).find(r => r.queueType === "RANKED_SOLO_5x5");
   if (solo) {
     const { data: prev } = await supabase
       .from("players").select("tier,rank,lp").eq("puuid", puuid).single();
+
     await supabase.from("players").update({
       tier: solo.tier, rank: solo.rank, lp: solo.leaguePoints,
       wins: solo.wins, losses: solo.losses, updated_at: now,
     }).eq("puuid", puuid);
+
     const newScore  = rankScore(solo.tier, solo.rank, solo.leaguePoints);
     const prevScore = prev ? rankScore(prev.tier, prev.rank, prev.lp) : -2;
     if (newScore !== prevScore) {
@@ -100,40 +97,71 @@ async function runPostgame(puuid, apiKey, supabase) {
     }
   }
 
-  // Find 1 new match not yet in DB
-  const { data: known } = await supabase
-    .from("player_matches").select("match_id")
-    .eq("puuid", puuid).in("match_id", matchIds);
-  const knownSet   = new Set((known||[]).map(m => m.match_id));
-  const newMatchId = matchIds.find(id => !knownSet.has(id));
-  if (!newMatchId) return;
-
-  const m = await riotGet(ROUTING, `/lol/match/v5/matches/${newMatchId}`, apiKey);
+  // Buscar la partida nueva con reintentos
+  // Riot puede tardar hasta 5 min en indexar el match
+  const ATTEMPTS   = 8;
+  const DELAYS_SEC = [30, 45, 60, 90, 120, 150, 180, 240]; // esperas entre intentos
 
   const { data: allPlayers } = await supabase.from("players").select("puuid");
-  const tracked = new Set((allPlayers||[]).map(p => p.puuid));
+  const tracked = new Set((allPlayers || []).map(p => p.puuid));
 
-  const participantMap = m.info.participants.reduce((obj, part) => {
-    obj[part.puuid] = { win: part.win, champ: part.championName, k: part.kills, d: part.deaths, a: part.assists };
-    return obj;
-  }, {});
+  for (let attempt = 0; attempt < ATTEMPTS; attempt++) {
+    const waitMs = DELAYS_SEC[attempt] * 1000;
+    console.log(`[postgame] ${puuid}: attempt ${attempt + 1}/${ATTEMPTS}, waiting ${DELAYS_SEC[attempt]}s...`);
+    await sleep(waitMs);
 
-  await supabase.from("matches").upsert(
-    { match_id: newMatchId, fetched_at: now, data: participantMap },
-    { onConflict: "match_id" }
-  );
+    try {
+      const matchIds = await riotGet(ROUTING,
+        `/lol/match/v5/matches/by-puuid/${puuid}/ids?start=0&count=10&queue=420`, apiKey);
 
-  const upserts = m.info.participants
-    .filter(p => tracked.has(p.puuid))
-    .map(p => ({
-      puuid: p.puuid, match_id: newMatchId, win: p.win, champ: p.championName,
-      kills: p.kills, deaths: p.deaths, assists: p.assists,
-      played_at: new Date(m.info.gameStartTimestamp).toISOString(),
-    }));
-  if (upserts.length) {
-    await supabase.from("player_matches").upsert(upserts, { onConflict: "puuid,match_id" });
+      const { data: known } = await supabase
+        .from("player_matches").select("match_id")
+        .eq("puuid", puuid).in("match_id", matchIds);
+
+      const knownSet   = new Set((known || []).map(m => m.match_id));
+      const newMatchId = matchIds.find(id => !knownSet.has(id));
+
+      if (!newMatchId) {
+        console.log(`[postgame] ${puuid}: no new match yet (attempt ${attempt + 1})`);
+        continue; // reintenta
+      }
+
+      const m = await riotGet(ROUTING, `/lol/match/v5/matches/${newMatchId}`, apiKey);
+
+      const participantMap = m.info.participants.reduce((obj, part) => {
+        obj[part.puuid] = {
+          win: part.win, champ: part.championName,
+          k: part.kills, d: part.deaths, a: part.assists,
+        };
+        return obj;
+      }, {});
+
+      await supabase.from("matches").upsert(
+        { match_id: newMatchId, fetched_at: now, data: participantMap },
+        { onConflict: "match_id" }
+      );
+
+      const upserts = m.info.participants
+        .filter(p => tracked.has(p.puuid))
+        .map(p => ({
+          puuid: p.puuid, match_id: newMatchId, win: p.win, champ: p.championName,
+          kills: p.kills, deaths: p.deaths, assists: p.assists,
+          played_at: new Date(m.info.gameStartTimestamp).toISOString(),
+        }));
+
+      if (upserts.length) {
+        await supabase.from("player_matches")
+          .upsert(upserts, { onConflict: "puuid,match_id" });
+      }
+
+      console.log(`[postgame] ${puuid}: stored ${newMatchId} on attempt ${attempt + 1}`);
+      return; // ✓ éxito, salimos
+    } catch (e) {
+      console.error(`[postgame] ${puuid} attempt ${attempt + 1} error: ${e.message}`);
+    }
   }
-  console.log(`[postgame] ${puuid}: stored ${newMatchId}`);
+
+  console.error(`[postgame] ${puuid}: failed to find new match after ${ATTEMPTS} attempts`);
 }
 
 function riotGet(hostname, path, apiKey) {
